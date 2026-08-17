@@ -1,0 +1,9 @@
+# Torrentath beta package — published byte-for-byte as sealed.
+# Git must not normalise ANY file: a clone has to reproduce the sealed bytes
+# so MANIFEST.sha256 still verifies on a Windows checkout.
+* -text
+*.html -text
+*.json -text
+*.md   -text
+*.png  binary
+*.jpg  binary

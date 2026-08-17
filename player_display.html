@@ -1,0 +1,2006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="application-name" content="Torrentath — The Imperial Chronicle — 5E Compatible">
+<meta name="description" content="Torrentath — a DM console and a second-screen player display. 5E Compatible. Compatible with fifth edition; not affiliated with or endorsed by any game publisher.">
+<title>Torrentath — The Imperial Chronicle · 5E Compatible</title>
+<style>
+:root{
+  --ink:#0f1016; --parchment:#ece4d0; --gold:#c9a227; --imperial:#7b5ab0; --muted:#8d8776;
+  --serif:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+  --ui:ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:radial-gradient(120% 90% at 50% 0%, #191527 0%, var(--ink) 60%);color:var(--parchment);font-family:var(--serif);overflow:hidden}
+.stage{height:100vh;display:flex;flex-direction:column}
+.content{flex:1;display:flex;align-items:center;justify-content:center;padding:4vh 6vw;text-align:center}
+.rule{width:min(520px,60vw);height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:22px auto}
+/* idle */
+.idle .sig{font-size:clamp(40px,7vw,88px);letter-spacing:.12em;color:var(--gold)}
+.idle .sub{font-family:var(--ui);font-size:clamp(11px,1.3vw,15px);letter-spacing:.34em;text-transform:uppercase;color:var(--muted);margin-top:10px}
+/* v257 (BL-028 Q2, ruled by silence): the attribution notice rides the IDLE
+   screen and nothing else. It is inside .idle, so it is gone the instant the
+   DM pushes anything - no state to track, no way for it to survive a push -
+   and it is pinned to the foot of the window so it never crowds the sigil.
+   Small, visible, unmissable if looked for: the idle screen is the one the
+   table stares at while everyone finds their dice. */
+.idle .lic{position:fixed;left:0;right:0;bottom:0;padding:10px 5vw 28px;
+  font-family:var(--ui);font-size:clamp(8px,.78vw,10px);line-height:1.5;
+  letter-spacing:.02em;text-transform:none;color:rgba(146,140,124,.62);
+  max-width:none;text-align:center;pointer-events:none}
+
+/* v273 (BL-051 · rulings ③ + ④): the build stamp on the players' screen.
+   §2.2 measured `Build` at ZERO here, and the README had already told a tester
+   that the build line is the thing to quote — on the one screen that has none.
+   A fault on this screen can be a SILENCE while the console looks healthy
+   (BL-043), so the person best placed to report it was the one with nothing to
+   report with.
+   IT RIDES THE IDLE FOOT AND THAT DECISION IS NOT THIS BUILD'S. v257 wrote it
+   for the attribution notice, in this file, and gave the reason: it is gone the
+   instant the DM pushes anything, and the idle screen is the one the table
+   stares at while everyone finds their dice. The stamp gets the same treatment
+   and the same lifetime, and it is a SIBLING of .lic so the notice's own bytes
+   — asserted verbatim in two instruments — are not touched. The 12px of foot
+   padding the notice used to end in is now 28px; the stamp lives in it. */
+.idle .pdstamp{position:fixed;left:0;right:0;bottom:0;padding:0 5vw 9px;
+  font-family:var(--ui);font-size:clamp(8px,.78vw,10px);line-height:1.4;
+  letter-spacing:.06em;text-transform:none;color:rgba(146,140,124,.45);
+  text-align:center;pointer-events:none}
+/* handout — typographic document */
+.doc{max-width:min(88vw,58ch);text-align:left}
+.doc.center{text-align:center}
+.doc h1{font-size:clamp(30px,4.6vw,60px);font-weight:600;letter-spacing:.02em;color:var(--gold);text-align:center}
+.doc .rule{margin:18px auto 26px}
+.doc .body{line-height:1.62;max-height:76vh;overflow-y:auto;padding-right:6px;scrollbar-width:thin;scrollbar-color:#4a4128 transparent}
+.doc .body p{margin:0 0 .75em}
+.doc .body p:last-child{margin-bottom:0}
+.doc .body .li{padding-left:1.25em;text-indent:-1.25em;margin:.3em 0}
+.doc .body .li{padding-left:1.7em;text-indent:-1.7em;margin:.55em 0;line-height:1.5}
+.doc .body .li .mk{color:var(--gold);font-weight:600}
+.doc .body .li .lead{color:var(--gold);letter-spacing:.04em;font-style:normal}
+.doc .body .li .beattag{display:inline-block;font-family:var(--ui);font-size:.62em;letter-spacing:.18em;color:var(--imperial);border:1px solid #4a3f6e;border-radius:10px;padding:.1em .7em;text-indent:0;vertical-align:.12em}
+.doc.listy{max-width:min(90vw,70ch)}
+.doc.sz1 .body{font-size:clamp(24px,3.2vw,42px)}
+.doc.sz2 .body{font-size:clamp(20px,2.5vw,32px)}
+.doc.sz3 .body{font-size:clamp(17px,2vw,26px)}
+.doc.sz4 .body{font-size:clamp(14px,1.6vw,21px)}
+.doc.dropcap .body > p:first-child::first-letter{font-size:2.7em;line-height:.82;color:var(--gold);float:left;padding:.04em .1em 0 0}
+.doc .body::-webkit-scrollbar{width:6px}
+.doc .body::-webkit-scrollbar-thumb{background:#4a4128;border-radius:3px}
+/* image */
+.imgwrap{max-width:92vw;max-height:74vh;display:flex;flex-direction:column;align-items:center;gap:14px}
+.imgwrap img{max-width:92vw;max-height:68vh;border:1px solid #4a4128;border-radius:4px;box-shadow:0 12px 60px rgba(0,0,0,.6)}
+.imgwrap .cap{font-size:clamp(16px,2vw,24px);color:var(--parchment)}
+/* pit board — fight night */
+.pit{width:min(94vw,980px);text-align:center}
+.pit .kick{font-family:var(--ui);font-size:clamp(11px,1.3vw,15px);letter-spacing:.34em;text-transform:uppercase;color:var(--muted)}
+.pit .card{display:flex;align-items:center;justify-content:center;gap:3vw;margin-top:14px}
+.pit .ftr{flex:1;max-width:40%}
+.pit .ftr .nm{font-size:clamp(28px,4.4vw,58px);font-weight:600;color:var(--parchment);line-height:1.1}
+.pit .ftr.win .nm{color:var(--gold);text-shadow:0 0 30px rgba(201,162,39,.35)}
+.pit .ftr .meta{font-family:var(--ui);font-size:clamp(11px,1.4vw,16px);color:var(--muted);margin-top:6px;letter-spacing:.08em}
+.pit .ftr .meta .chip{border:1px solid var(--gold);color:var(--gold);border-radius:12px;padding:1px 10px;margin-right:8px}
+.pit .ftr .meta .odds{color:var(--parchment)}
+.pit .vs{font-family:var(--ui);font-size:clamp(14px,2vw,24px);letter-spacing:.3em;color:var(--imperial)}
+.pit .status{display:inline-block;font-family:var(--ui);font-size:clamp(13px,1.8vw,22px);letter-spacing:.28em;border-radius:18px;padding:5px 22px;margin-top:16px}
+.pit .status.open{color:#e6c86a;border:1px solid #8a7020;animation:pulse 1.6s ease-in-out infinite}
+.pit .status.closed{color:var(--muted);border:1px solid #4a4433}
+.pit .status.result{color:var(--ink);background:var(--gold);border:1px solid var(--gold);font-weight:700}
+.pit .status.sudden{color:#d98079;border:1px solid #8a2f21;animation:pulse 1.1s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
+.pit .method{font-family:var(--ui);font-size:clamp(11px,1.4vw,16px);letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+.pit .tally{font-size:clamp(22px,3vw,40px);color:var(--parchment);margin-top:10px}
+.pit .rounds{margin-top:8px;font-family:var(--ui);font-size:clamp(12px,1.5vw,18px);color:var(--muted)}
+.pit .rounds .rr{margin:3px 0}
+.pit .rounds .rw{color:var(--gold);font-weight:600}
+.pit .rounds .ko{color:#e6c86a;letter-spacing:.2em;font-weight:700}
+.pit .bets{margin:14px auto 0;max-width:640px;font-family:var(--ui);font-size:clamp(11px,1.4vw,16px);color:var(--parchment)}
+.pit .bets .bt{display:flex;justify-content:space-between;gap:16px;border-bottom:1px solid #2c2740;padding:3px 4px}
+.pit .bets .bt .who{color:var(--parchment)}
+.pit .bets .bt .on{color:var(--muted)}
+.pit .bets .bt .amt{color:var(--gold);white-space:nowrap}
+.pit .promo{display:inline-block;margin-top:12px;font-family:var(--ui);font-size:clamp(12px,1.6vw,19px);letter-spacing:.1em;color:#e6c86a;border:1px solid #8a7020;border-radius:14px;padding:4px 16px}
+.pit .call{margin:18px auto 0;max-width:760px;font-style:italic;font-size:clamp(17px,2.3vw,28px);line-height:1.5;color:var(--parchment)}
+.pit .call .who{display:block;font-style:normal;font-family:var(--ui);font-size:clamp(11px,1.3vw,15px);letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+.pit .chrow{display:flex;justify-content:space-between;gap:16px;border-bottom:1px solid #2c2740;padding:6px 4px;font-size:clamp(16px,2.2vw,26px)}
+.pit .chrow .rec{font-family:var(--ui);font-size:clamp(12px,1.5vw,18px);color:var(--muted)}
+.pit .chrow .rec .w{color:var(--gold)}
+.pit .chrow .rec .l{color:#d98079}
+.pit .chrow .chip{font-family:var(--ui);font-size:clamp(11px,1.4vw,16px);border:1px solid var(--gold);color:var(--gold);border-radius:12px;padding:1px 10px}
+.pit .grudge{display:inline-block;font-family:var(--ui);font-size:clamp(11px,1.5vw,17px);letter-spacing:.26em;text-transform:uppercase;color:#d98079;border:1px solid #8a2f21;border-radius:14px;padding:3px 16px;margin-top:12px}
+.pit .beats{max-width:820px;margin:6px auto 0;text-align:left}
+.pit .beat{margin-top:12px}
+.pit .beat .bh{font-family:var(--ui);font-size:clamp(11px,1.3vw,15px);letter-spacing:.3em;color:var(--gold)}
+.pit .beat .bt2{font-size:clamp(14px,1.7vw,21px);line-height:1.5;color:var(--parchment);margin-top:2px}
+/* v56 · the midway — the carnival's shell board */
+.carn .shrow{display:flex;justify-content:center;gap:6vw;margin:38px 0 6px;align-items:flex-end}
+.carn .slot{position:relative;width:clamp(90px,13vw,150px);height:clamp(120px,17vw,190px)}
+.carn .peb{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:clamp(20px,2.8vw,30px);height:clamp(16px,2.2vw,24px);border-radius:50%;background:radial-gradient(circle at 35% 30%,#cfc4a8,#7a7060);opacity:0;box-shadow:0 2px 6px rgba(0,0,0,.5)}
+.carn .shell{position:absolute;bottom:0;left:0;right:0;height:clamp(72px,10.5vw,112px);border-radius:50% 50% 12px 12px/72% 72% 12px 12px;background:radial-gradient(ellipse at 40% 25%,#d8b98a,#8a6a42 70%,#5c452c);border:1px solid #4a3823;box-shadow:0 6px 20px rgba(0,0,0,.5),inset 0 -8px 14px rgba(0,0,0,.25);transition:transform 1s cubic-bezier(.2,.9,.3,1.1)}
+.carn.reveal .shell{transform:translateY(calc(-1 * clamp(62px,9vw,96px)))}
+.carn.reveal .peb.here{opacity:1;transition:opacity .5s .55s}
+.carn .slab{position:absolute;left:0;right:0;bottom:-36px;font-family:var(--ui);letter-spacing:.24em;font-size:clamp(12px,1.5vw,17px);color:var(--muted)}
+.carn .slot.call .shell{box-shadow:0 0 0 3px var(--gold),0 6px 20px rgba(0,0,0,.5)}
+.carn .slot.call .slab{color:var(--gold)}
+@keyframes carnwob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.carn.down .shell{animation:carnwob 2.6s ease-in-out infinite}
+.carn.down .slot:nth-child(2) .shell{animation-delay:.45s}
+.carn.down .slot:nth-child(3) .shell{animation-delay:.9s}
+.carn .statwrap{margin-top:46px}
+/* v58 · the small package — the 50/50: two shells glow, one goes dark, nothing says which is which */
+.carn .slot.twoin .shell{box-shadow:0 0 0 3px var(--gold),0 0 26px rgba(201,162,39,.45),0 6px 20px rgba(0,0,0,.5)}
+.carn .slot.twoin .slab{color:var(--gold)}
+.carn .slot.out{opacity:.32}
+.carn .slot.out .shell{animation:none}
+.pit .oboard{max-width:820px;margin:18px auto 0;border:1px solid var(--gold);border-radius:8px;padding:12px 18px;background:rgba(201,162,39,.06);text-align:left}
+.pit .oboard .obh{font-family:var(--ui);font-size:clamp(11px,1.3vw,15px);letter-spacing:.26em;color:var(--gold);text-align:center}
+.pit .obrow{display:flex;gap:14px;border-bottom:1px solid #4a4128;padding:6px 2px;font-family:var(--ui);font-size:clamp(12px,1.6vw,19px);flex-wrap:wrap}
+.pit .obrow .obt{color:var(--gold);white-space:nowrap;min-width:7.5em}
+.pit .obrow .obl{color:var(--parchment)}
+.pit .obrow .obl b{color:var(--gold)}
+.pit .oboard .obn{font-family:var(--ui);font-size:clamp(10px,1.2vw,14px);letter-spacing:.18em;color:var(--muted);text-align:center;margin-top:8px}
+/* date banner */
+.datebar{padding:16px 4vw 22px;text-align:center;border-top:1px solid #3a3350;background:linear-gradient(0deg,#161226,transparent)}
+.datebar .d{font-size:clamp(20px,2.6vw,34px)}
+.datebar .d b{color:var(--gold);font-weight:600}
+.datebar .w{font-family:var(--ui);font-size:clamp(11px,1.3vw,15px);letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.datebar .w .god{color:var(--imperial)}
+.datebar .fest{display:inline-block;margin-top:8px;font-family:var(--ui);font-size:clamp(11px,1.3vw,15px);letter-spacing:.12em;color:#e6c86a;border:1px solid #8a7020;border-radius:14px;padding:3px 14px}
+/* v239 (BL-021): the banner's own stand-down countdown — drawn ON the thing that is going away,
+   so it can run alongside the bottom #push-timer bar (the mirror-return timer) instead of
+   fighting it for the one bar. */
+.dbtimer{display:flex;align-items:center;gap:10px;justify-content:center;margin:10px auto 0;max-width:min(420px,46vw)}
+.dbtimer.hidden{display:none}
+.dbtimer .dbt-track{flex:1;height:3px;background:rgba(255,255,255,.09);border-radius:3px;overflow:hidden}
+.dbtimer .dbt-fill{height:100%;width:100%;background:var(--gold);border-radius:3px;transition:width .5s linear}
+.dbtimer .dbt-count{font-family:var(--ui);font-size:clamp(10px,1.1vw,13px);letter-spacing:.08em;color:var(--muted);min-width:46px;text-align:left}
+.pips{display:flex;gap:8px;justify-content:center;margin-top:10px}
+.pips span{width:10px;height:10px;border-radius:50%;border:1px solid var(--gold);opacity:.4}
+.pips span.on{background:var(--gold);opacity:1}
+.hidden{display:none}
+.fade{animation:fade .5s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.fade{animation:none}}
+/* v205 (BL-016 P3) — the Cornell Scrying Broadcast */
+#pd-race{width:96vw;font-family:var(--ui)}
+#pd-race .bc-kick{font-size:clamp(11px,1.3vw,15px);letter-spacing:.3em;text-transform:uppercase;color:var(--muted);text-align:center}
+#pd-race .bc-title{font-family:var(--serif);font-size:clamp(20px,3vw,38px);color:var(--gold);text-align:center;letter-spacing:.05em}
+#pd-race .bc-meta{display:flex;justify-content:center;align-items:center;gap:14px;margin-top:6px;font-size:clamp(12px,1.4vw,18px);color:var(--parchment)}
+#pd-race .bc-tier{border:1px solid var(--gold);border-radius:10px;padding:1px 10px;color:var(--gold);font-weight:700;letter-spacing:1px;font-size:.85em} /* v218 (BL-018 P1): the league pill — shown Tier II and up */
+#pd-race .bc-pip{display:inline-block;width:11px;height:11px;border-radius:50%;background:#3a3320;margin:0 2px}
+#pd-race .bc-pip.on{background:var(--gold)}
+#pd-race .bc-gem{color:#7fd0e8}.bc-gem.off{color:#555;filter:grayscale(1)}
+#pd-race .bc-crew{text-align:center;margin-top:6px;font-family:var(--serif);font-size:clamp(13px,1.5vw,19px);color:var(--gold);letter-spacing:.02em}
+#pd-race .bc-bet{margin:8px auto 0;max-width:88vw;text-align:center;border:1px solid var(--gold);border-radius:6px;background:rgba(201,162,39,.09);padding:5px 14px;font-size:clamp(11px,1.25vw,15px);color:var(--gold);letter-spacing:.04em}
+#pd-race .bc-bet .bo{color:var(--parchment);margin:0 12px;letter-spacing:0}
+#pd-race .bc-bet .bl{opacity:.85}
+#pd-race .bc-main{display:flex;gap:2vw;margin-top:14px;align-items:stretch;justify-content:center} /* v215 (UX sweep): the booth stretches to the board */
+#pd-race .bc-board{flex:1.2;max-width:46vw}
+#pd-race .bc-pod{display:flex;gap:8px;margin-bottom:8px}
+#pd-race .bc-pod .p{flex:1;border:1px solid #4a3f2a;border-radius:6px;background:#171420;padding:8px 10px;text-align:center}
+#pd-race .bc-pod .p .rk{font-size:clamp(16px,2vw,24px);color:var(--gold);font-weight:700}
+#pd-race .bc-pod .p .nm{font-family:var(--serif);font-size:clamp(13px,1.6vw,19px);margin-top:2px}
+#pd-race .bc-pod .p .sc{color:var(--muted);font-size:clamp(11px,1.3vw,14px);margin-top:2px}
+#pd-race .bc-rows{border:1px solid #35304a;border-radius:6px;background:#12101a;max-height:62vh;overflow:hidden;column-count:2;column-gap:0;padding:4px 0}
+#pd-race .bc-row{display:flex;align-items:center;gap:8px;padding:3px 12px;font-size:clamp(12px,1.35vw,19px);break-inside:avoid}
+#pd-race .bc-row .rk{min-width:22px;text-align:right;color:var(--muted)}
+#pd-race .bc-row.party{background:#241f10;border-left:3px solid var(--gold);font-size:clamp(13px,1.5vw,21px);font-weight:600} /* v214: the party row carries at distance */
+#pd-race .bc-row.party .nm{color:var(--gold)}
+#pd-race .bc-row .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left} /* v214: a leaderboard reads left-aligned */
+#pd-race .bc-row .sc{font-weight:700}
+#pd-race .mv{font-size:.8em}.mv.up{color:#7fae6a}.mv.dn{color:#e06060}
+#pd-race .rst.y{color:#e0b13e}.rst.r{color:#e06060}
+#pd-race .bc-booth{flex:1;max-width:38vw;border:1px solid #35304a;border-radius:6px;background:#12101a;padding:10px 14px;display:flex;flex-direction:column}
+#pd-race .bc-booth .bh{font-size:clamp(11px,1.2vw,14px);letter-spacing:.22em;text-transform:uppercase;color:var(--imperial)}
+#pd-race .bc-ann{margin-top:6px;font-family:var(--serif);font-size:clamp(13px,1.5vw,19px);line-height:1.5;text-align:left;flex:1} /* v214: closed captions read left-aligned */
+#pd-race .bc-ann .a{padding:5px 0;border-bottom:1px solid #241f30}
+#pd-race .bc-ann .a .tm{font-family:var(--ui);font-size:.7em;color:var(--muted);margin-right:8px;letter-spacing:.1em}
+#pd-race .bc-ann .a.triumph{color:#b8d8a8}.bc-ann .a.danger{color:#e8a8a0}.bc-ann .a.bully{color:#d98079}.bc-ann .a.day-wrap{color:var(--gold)}.bc-ann .a.stone{color:#7fd0e8}
+#pd-race .bc-splash{text-align:center;margin-top:4vh}
+#pd-race .bc-splash .tro{font-size:clamp(40px,7vw,90px)}
+#pd-race .bc-splash .big{font-family:var(--serif);font-size:clamp(30px,5vw,64px);color:var(--gold);letter-spacing:.06em}
+#pd-race .bc-splash .who{font-family:var(--serif);font-size:clamp(18px,2.6vw,34px);margin-top:8px}
+#pd-race .bc-splash .sub{color:var(--muted);margin-top:8px;font-size:clamp(12px,1.5vw,18px)}
+#pd-race .bc-wait{text-align:center;margin-top:10vh;font-family:var(--serif)}
+#pd-race .bc-wait .w1{font-size:clamp(22px,3.4vw,44px);color:var(--gold)}
+#pd-race .bc-wait .w2{color:var(--muted);font-family:var(--ui);letter-spacing:.24em;text-transform:uppercase;font-size:clamp(11px,1.3vw,15px);margin-top:10px}
+
+/* ===== v209 (BL-016 Piece 9/10) — the broadcast at full r001 Live-Race-Feed fidelity ===== */
+#pd-race{position:relative;padding-bottom:34px}
+#pd-race .bc-ctl{position:absolute;top:0;right:0;z-index:35;display:flex;gap:6px}
+#pd-race .bc-ctl button{background:rgba(255,255,255,.05);border:1px solid #3a3350;border-radius:6px;color:#8b9db5;font-size:14px;padding:4px 10px;cursor:pointer}
+#pd-race .bc-ctl button:hover{background:rgba(255,255,255,.13);color:var(--parchment)}
+#pd-race .bc-run{display:inline-flex;align-items:center;gap:5px}
+#pd-race .rdot{display:inline-block;width:8px;height:8px;border-radius:50%}
+#pd-race .rdot.g{background:#4caf50}#pd-race .rdot.y{background:#f0a500}#pd-race .rdot.r{background:#e05c5c}
+#pd-race .bc-alert{margin:8px auto 0;max-width:70vw;display:flex;align-items:center;justify-content:center;gap:9px;border:1px solid;border-radius:8px;padding:6px 14px;font-family:var(--ui);font-size:clamp(11px,1.3vw,15px)}
+#pd-race .bc-alert.y{background:rgba(240,165,0,.08);border-color:rgba(240,165,0,.4);color:#f0a500}
+#pd-race .bc-alert.r{background:rgba(220,50,50,.1);border-color:rgba(220,50,50,.5);color:#e05c5c}
+#pd-race .bc-alert.pulse{animation:pdPulse 1.8s ease-in-out infinite}
+@keyframes pdPulse{0%,100%{opacity:1}50%{opacity:.5}}
+#pd-race .bc-hint{margin:8px auto 0;max-width:72vw;font-family:var(--serif);font-size:clamp(14px,1.6vw,21px);color:#cdd6e4;line-height:1.5;text-align:center} /* v214 (UAT): one flowing book sentence — no bullet, no split voice */
+#pd-race .bc-ann .who{font-family:var(--ui);font-size:.8em;letter-spacing:.06em;font-weight:700;margin-right:7px}
+#pd-race .bc-ann .who.voss{color:var(--gold)}
+#pd-race .bc-ann .who.tan{color:#b89aee}
+#pd-race .bc-board.wide{max-width:82vw}
+#pd-race .bc-row.fu{animation:pdfUp .8s ease-out}
+#pd-race .bc-row.fd{animation:pdfDn .8s ease-out}
+#pd-race .bc-row.fb{animation:pdfBully 1.2s ease-out}
+@keyframes pdfUp{0%{background:rgba(76,175,80,.25)}100%{background:transparent}}
+@keyframes pdfDn{0%{background:rgba(224,92,92,.2)}100%{background:transparent}}
+@keyframes pdfBully{0%{background:rgba(220,50,50,.3)}100%{background:transparent}}
+.race-ticker{position:fixed;left:0;right:0;bottom:0;padding:6px 0;border-top:1px solid #2a2440;background:rgba(10,8,18,.94);overflow:hidden;white-space:nowrap;z-index:30;display:none} /* v214: a static element — inside the view, the .fade transform captured position:fixed and stranded it mid-screen */
+.race-ticker.visible{display:block}
+.race-ticker .tk{display:inline-block;animation:pdTick 45s linear infinite}
+.race-ticker .tk:hover{animation-play-state:paused}
+.race-ticker .ti{display:inline-block;font-family:var(--ui);font-size:clamp(11px,1.2vw,16px);color:#66779a;padding:0 40px}
+.race-ticker .tsep{color:#3a3350;font-size:12px}
+@keyframes pdTick{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+#pd-race.fin{cursor:pointer}
+#pd-race .bc-splash .tro{font-size:clamp(44px,7vw,90px);font-weight:700;line-height:1}
+#pd-race.fin.win .bc-splash .big{color:var(--parchment);animation:pdWinGlow 2s ease-in-out infinite}
+@keyframes pdWinGlow{0%,100%{text-shadow:0 0 40px rgba(250,199,117,.3)}50%{text-shadow:0 0 80px rgba(250,199,117,.6),0 0 120px rgba(250,199,117,.2)}}
+#pd-race .bc-wolves{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+#pd-race .bc-wolves span{font-family:var(--ui);font-size:clamp(10px,1.2vw,14px);color:#6dbf6d;background:rgba(77,183,120,.06);border:1px solid rgba(77,183,120,.2);border-radius:20px;padding:3px 12px}
+#pd-race .bc-call{margin:16px auto 0;max-width:640px;font-family:var(--serif);font-style:italic;font-size:clamp(12px,1.5vw,18px);line-height:1.7;color:#b8c8a0}
+#pd-race.fin.lose .bc-call{color:#7a8aa0}
+#pd-race .bc-standings{margin:18px auto 0;max-width:420px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px 18px;text-align:left;max-height:30vh;overflow:hidden;font-family:var(--ui);font-size:clamp(11px,1.2vw,14px)}
+#pd-race .bc-standings .srow{display:flex;gap:10px;align-items:center;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+#pd-race .bc-standings .srow:last-child{border-bottom:none}
+#pd-race .bc-standings .sr{min-width:24px;color:#5a6a85}
+#pd-race .bc-standings .sn{flex:1;color:#8b9db5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pd-race .bc-standings .sn.party{color:var(--gold);font-weight:600}
+#pd-race .bc-standings .ss{color:#5a6a85}
+#pd-race .bc-standings .smore{font-size:.85em;color:#4a5a72;padding-top:5px}
+#pd-race .bc-guide{margin-top:14px;font-family:var(--serif);font-style:italic;font-size:clamp(11px,1.3vw,15px);color:#5a6a85}
+#pd-race .bc-dismiss{margin-top:8px;font-family:var(--ui);font-size:clamp(9px,1vw,12px);letter-spacing:.14em;text-transform:uppercase;color:#3a4a60}
+#pd-race .bc-refin{margin:10px auto 0;text-align:center;font-family:var(--ui);font-size:clamp(10px,1.1vw,13px);color:var(--gold);cursor:pointer;opacity:.8}
+#pd-race .bc-particles{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:34}
+#pd-race .bc-particles .pt{position:absolute;border-radius:50%;animation:pdFall linear infinite}
+@keyframes pdFall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+/* v212 (UAT): the bottom push-timer bar — a timed boxed push shows how long it holds before the broadcast returns */
+.push-timer{position:fixed;left:0;right:0;bottom:0;z-index:55;display:none;align-items:center;gap:10px;padding:6px 16px;background:rgba(10,8,18,.94);border-top:1px solid rgba(201,162,39,.4)}
+.push-timer.visible{display:flex}
+.push-timer .pt-count{font-family:var(--ui);font-size:clamp(11px,1.2vw,14px);color:var(--gold);min-width:56px;letter-spacing:.05em}
+.push-timer .pt-track{flex:1;height:4px;background:rgba(255,255,255,.08);border-radius:3px}
+.push-timer .pt-fill{height:100%;width:100%;background:var(--gold);border-radius:3px;transition:width .5s linear}
+.push-timer .pt-note{font-family:var(--ui);font-size:clamp(9px,1vw,12px);color:#5a6a85;letter-spacing:.08em;text-transform:uppercase}
+/* the story strip — the SP image push (v209 Piece 9b): an OVERLAY over whatever view is shown */
+.story-strip{position:fixed;left:0;right:0;bottom:0;z-index:60;display:none;flex-direction:column;background:rgba(8,6,16,.97);border-top:1px solid rgba(147,112,219,.35);box-shadow:0 -10px 50px rgba(0,0,0,.5)}
+.story-strip.visible{display:flex}
+.story-strip .ss-img{width:100%;overflow:hidden;display:none}
+.story-strip .ss-img img{width:100%;max-height:55vh;object-fit:cover;object-position:center;display:block}
+.story-strip.has-image .ss-img{display:block}
+.story-strip .ss-text{padding:12px 22px;display:flex;flex-direction:column;gap:4px}
+.story-strip .ss-title{font-family:var(--ui);font-size:clamp(10px,1.1vw,13px);letter-spacing:.14em;text-transform:uppercase;color:rgba(147,112,219,.8)}
+.story-strip .ss-flavor{font-family:var(--serif);font-style:italic;font-size:clamp(13px,1.6vw,19px);color:#cfccc4;line-height:1.65}
+.story-strip .ss-bar{height:3px;background:rgba(255,255,255,.06);position:relative}
+.story-strip .ss-fill{height:100%;background:#9370db;transition:width .5s linear}
+.story-strip .ss-time{position:absolute;right:10px;top:-20px;font-family:var(--ui);font-size:10px;color:rgba(147,112,219,.8);letter-spacing:.05em}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="content" id="content">
+    <div class="idle" id="idle">
+      <div class="sig">TORRENTATH</div>
+      <div class="rule"></div>
+      <div class="sub">The chronicle awaits</div>
+    </div>
+  </div>
+  <div class="race-ticker" id="race-ticker"><div class="tk" id="race-ticker-track"></div></div>
+  <div class="push-timer" id="push-timer"><span class="pt-count" id="pt-count"></span><div class="pt-track"><div class="pt-fill" id="pt-fill"></div></div><span class="pt-note">the broadcast returns</span></div>
+  <div class="story-strip" id="story-strip" aria-live="polite">
+    <div class="ss-img" id="ss-img"></div>
+    <div class="ss-text"><div class="ss-title" id="ss-title"></div><div class="ss-flavor" id="ss-flavor"></div></div>
+    <div class="ss-bar"><div class="ss-fill" id="ss-fill" style="width:100%"></div><div class="ss-time" id="ss-time"></div></div>
+  </div>
+  <div class="datebar hidden" id="datebar">
+    <div class="d" id="d-text"></div>
+    <div class="w" id="d-week"></div>
+    <div class="pips" id="d-pips"></div>
+    <div><span class="fest hidden" id="d-fest"></span></div>
+    <!-- v239 (BL-021): the banner's OWN countdown. It is not the bottom #push-timer bar — that one
+         is the mirror-return timer, it only arms over a live mirror and its note reads "the
+         broadcast returns". Both can be running at once, so they are separate furniture. -->
+    <div class="dbtimer hidden" id="db-timer"><div class="dbt-track"><div class="dbt-fill" id="db-fill"></div></div><span class="dbt-count" id="db-count"></span></div>
+  </div>
+</div>
+<script>
+'use strict';
+/* v275 (BL-052 · ruling ⑥): the players' screen has storage too, and
+   `BETA_READINESS.md` §2.3 never counted it. `torrentath_datebar` stores a PUSH
+   PAYLOAD and replays it on reload; its shape has moved before (v239 added the
+   countdown), and a stale banner painted here is a silence the console never
+   sees — BL-043's lesson, at a saved payload.
+
+   There is no Resets page on this screen and no Restore: a refused banner simply
+   does not come back, and the DM pushes the date again. The quarantined blob goes
+   into the same `torrentath_quarantine` ledger the console reads (BL-053), so the
+   console's ↺ Resets can show it and a bug report can ask for it.
+
+   `torrentath_pd_mute` is EXEMPT and the reason ships with it: it is a device
+   preference holding one character, not campaign state, and quarantining a mute
+   would be a gate taking something away that no build can get wrong. */
+const PD_SHAPES = { 'torrentath_datebar': 1 };
+const PD_EXEMPT = {
+  'torrentath_pd_mute': 'a device preference holding one character; not campaign state',
+  'torrentath_msg': 'a cross-tab message bus, written and read within milliseconds',
+  'torrentath_quarantine': 'the shared quarantine ledger itself (BL-053); a shape check here would quarantine the quarantine'
+};
+const PD_BUILD = 'v279';
+function pdGet(k){
+  let raw; try { raw = localStorage.getItem(k); } catch(e){ return null; }
+  if (raw === null || raw === undefined) return null;
+  const want = PD_SHAPES[k];
+  if (want === undefined) return raw;
+  let box = null; try { box = JSON.parse(raw); } catch(e){}
+  const ok = box && typeof box === 'object' && !Array.isArray(box) && box.__s === want;
+  if (!ok){ pdQuarantine(k, raw, (box && box.__b) || 'unstamped'); return null; }
+  return JSON.stringify(box.d);
+}
+function pdSet(k, s){
+  const want = PD_SHAPES[k];
+  try {
+    if (want === undefined){ localStorage.setItem(k, s); return; }
+    localStorage.setItem(k, JSON.stringify({__s: want, __b: PD_BUILD, d: JSON.parse(s)}));
+  } catch(e){}
+}
+function pdQuarantine(k, raw, from){
+  /* BL-053: into the ONE ledger the console reads — never a renamed key that
+     a prefix scan can trip over. This screen never restores; the DM pushes
+     the date again, and the console's ↺ Resets shows the piece for the report. */
+  try {
+    let led = null; try { led = JSON.parse(localStorage.getItem('torrentath_quarantine') || 'null'); } catch(e){}
+    if (!led || typeof led !== 'object' || !Array.isArray(led.pieces)) led = {v: 1, seq: 0, pieces: [], collapsed: []};
+    led.seq = (led.seq || 0) + 1;
+    led.pieces.push({id: led.seq, key: k, raw: raw, from: from, when: Date.now()});
+    localStorage.setItem('torrentath_quarantine', JSON.stringify(led));
+    localStorage.removeItem(k);
+  } catch(e){}
+}
+const CH_NAME = 'torrentath_campaign';
+const chan = ('BroadcastChannel' in window) ? new BroadcastChannel(CH_NAME) : null;
+const content = document.getElementById('content');
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function hello(){ if (chan) chan.postMessage({type:'display-hello', ts: Date.now()}); }
+hello(); setInterval(hello, 5000);
+
+/* =====================================================================
+   v257 · BL-028 - THE ATTRIBUTION NOTICE ON THE PLAYERS' SCREEN.
+
+   VERBATIM. Wizards specifies this wording and it must not be paraphrased,
+   reflowed or shortened; the seal asserts it byte-for-byte here, in
+   campaign_console.html and in LICENSE.md at the root of the zip.
+
+   It lives in exactly one place in this file and both idle paths read it -
+   the load-time screen below and the `clear` push - so the two can never
+   drift apart. It is a LIST, and at v259 BL-030 decided NOT to add the second
+   notice it was reserved for: SRD 5.2.1's Goblin Boss turned out to be a
+   different creature from the one this product ships, so the block went
+   homebrew and the product stayed on one baseline. The list stays a list.
+   ===================================================================== */
+var LICENCE_NOTICES = [
+  'This work includes material taken from the System Reference Document 5.1 ("SRD 5.1") by Wizards of the Coast LLC and available at https://dnd.wizards.com/resources/systems-reference-document. The SRD 5.1 is licensed under the Creative Commons Attribution 4.0 International License available at https://creativecommons.org/licenses/by/4.0/legalcode.'
+];
+var LICENCE_HTML = '<div class="lic">' + LICENCE_NOTICES.map(function(t){
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}).join('<br>') + '</div>';
+var STAMP_HTML = '<div class="pdstamp">Build v279 · 2026-08-17 — quote this line if you report a problem</div>';
+var IDLE_HTML = '<div class="idle"><div class="sig">TORRENTATH</div><div class="rule"></div><div class="sub">The chronicle awaits</div>' + LICENCE_HTML + STAMP_HTML + '</div>';
+
+function show(html){
+  content.innerHTML = `<div class="fade">${html}</div>`;
+}
+function fitBody(){
+  const body = content.querySelector('.doc .body');
+  if (body){
+    let fs = parseFloat(getComputedStyle(body).fontSize);
+    let guard = 40;
+    while (body.scrollHeight > body.clientHeight + 2 && fs > 13 && guard--){
+      fs -= 1;
+      body.style.fontSize = fs + 'px';
+    }
+  }
+}
+function splitInline(pa){
+  // Break a single paragraph into lines at ascending inline enumerators (1. / 1) / (1)) and [BEAT n] markers.
+  let t = pa.replace(/\s*(\[BEAT\s*\d+[^\]]*\])\s*/g, '\n$1 ');
+  const re = /(^|\s)(\((\d{1,2})\)|(\d{1,2})[.)])\s+/g;
+  const hits = [];
+  let mm;
+  while ((mm = re.exec(t))){
+    hits.push({idx: mm.index + mm[1].length, n: +(mm[3] || mm[4])});
+  }
+  const run = [];
+  for (const h of hits){
+    if (!run.length){ if (h.n === 1) run.push(h); }
+    else if (h.n === run[run.length - 1].n + 1) run.push(h);
+  }
+  if (run.length >= 2){
+    let out = '', prev = 0;
+    for (const h of run){ out += t.slice(prev, h.idx) + '\n'; prev = h.idx; }
+    out += t.slice(prev);
+    t = out;
+  }
+  return t.split('\n').map(l => l.trim()).filter(Boolean);
+}
+function liHTML(line){
+  let mk = '', rest = line;
+  const m = line.match(/^(\((\d{1,2})\)|(\d{1,2})[.)]|[✕◐•·\-–])\s+(.*)$/s);
+  if (m){ mk = m[1]; rest = m[4]; }
+  let lead = '';
+  const lm = rest.match(/^(\[BEAT\s*\d+[^\]]*\])\s*(.*)$/s) || null;
+  if (lm){ lead = `<span class="beattag">${esc(lm[1])}</span> `; rest = lm[2]; }
+  else {
+    const cm = rest.match(/^([A-Z][A-Z0-9' &-]{2,42}?)\s*(?:[-—:])\s+(.*)$/s);
+    if (cm && cm[1] === cm[1].toUpperCase()){ lead = `<span class="lead">${esc(cm[1])}</span> — `; rest = cm[2]; }
+  }
+  return `<div class="li">${mk ? `<span class="mk">${esc(mk)}</span> ` : ''}${lead}${esc(rest)}</div>`;
+}
+function renderRich(text){
+  const t = String(text || '').trim();
+  const paras = t.split(/\n{2,}/);
+  const LIST = /^\s*([✕◐•·\-–]|\(\d{1,2}\)|\d+[.)])\s+/;
+  let anyList = false;
+  const html = paras.map(pa => {
+    const lines = splitInline(pa);
+    const listy = lines.length > 1 && lines.filter(l => LIST.test(l) || /^\[BEAT/.test(l)).length >= Math.max(2, lines.length - 1);
+    if (listy){ anyList = true; return lines.map(liHTML).join(''); }
+    return `<p>${lines.map(esc).join('<br>')}</p>`;
+  }).join('');
+  const n = t.length;
+  const sz = n < 160 ? 'sz1' : n < 520 ? 'sz2' : n < 1200 ? 'sz3' : 'sz4';
+  const center = (n < 160 && !LIST.test(t)) ? ' center' : '';
+  const drop = (sz !== 'sz1' && !anyList && !LIST.test(paras[0] || '')) ? ' dropcap' : '';
+  const wide = anyList ? ' listy' : '';
+  return {html, cls: sz + center + drop + wide};
+}
+function handle(m){
+  if (!m || !m.type) return;
+  /* v209 (Piece 9b): the story strip is an OVERLAY — it rides over the current view and never replaces it */
+  if (m.type === 'story'){ showStory(m.payload || {}); return; }
+  if (m.type === 'story_clear'){ hideStory(); return; }
+  /* v212 (UAT): a timed boxed push carries m.showFor — run the bottom timer bar with the seconds
+     left until the broadcast returns; any other view-changing push stands it down (the date banner
+     doesn't replace the view, so it leaves a running countdown alone). */
+  if (m.showFor) ptStart(m.showFor);
+  else if (m.type !== 'date') ptHide();
+  if (m.type !== 'race' && m.type !== 'date') pdTickerHide(); /* v214: the bottom ticker belongs to the broadcast */
+  if (m.type === 'signal'){
+    const p = m.payload || {};
+    const cfg = {
+      x:      {bg: '#3a1010', line: '#8a2f21', big: '✕',  head: 'X-CARD',   sub: 'We skip this. No questions needed.'},
+      red:    {bg: '#4a1512', line: '#a53b3b', big: '●',  head: 'RED',      sub: 'Stop. Scene paused — we adjust.'},
+      yellow: {bg: '#3d3210', line: '#c9a227', big: '●',  head: 'YELLOW',   sub: 'Caution. Easing off and redirecting.'},
+      green:  {bg: '#12351d', line: '#4a8f5c', big: '●',  head: 'GREEN',    sub: 'All clear. Carry on.'},
+      pause:  {bg: '#241b3d', line: '#7b5ab0', big: '❚❚', head: 'PAUSE',    sub: 'Out of character for a minute. Everyone breathe.'}
+    }[p.level] || {bg: '#222', line: '#888', big: '·', head: '—', sub: ''};
+    document.body.style.background = cfg.bg;
+    show(`<div style="text-align:center">
+      <div style="font-size:clamp(70px,14vw,180px);color:${cfg.line};line-height:1">${cfg.big}</div>
+      <div style="font-family:var(--ui);font-size:clamp(26px,4.5vw,60px);letter-spacing:.3em;color:var(--parchment);margin-top:8px">${cfg.head}</div>
+      <div class="rule" style="background:linear-gradient(90deg,transparent,${cfg.line},transparent)"></div>
+      <div style="font-size:clamp(18px,2.4vw,30px);color:var(--parchment)">${esc(cfg.sub)}</div>
+    </div>`);
+    return;
+  }
+  if (m.type !== 'signal') document.body.style.background = '';
+  if (m.type === 'clear'){
+    show(IDLE_HTML);   /* v257 (BL-028): one idle template, so the notice cannot drift */
+    return;
+  }
+  if (m.type === 'handout'){
+    const p = m.payload || {};
+    const r = renderRich(p.text);
+    show(`<div class="doc ${r.cls}">${p.title ? `<h1>${esc(p.title)}</h1><div class="rule"></div>` : ''}<div class="body">${r.html}</div></div>`);
+    fitBody();
+  }
+  if (m.type === 'vignette'){
+    const p = m.payload || {};
+    const r = renderRich(p.text);
+    const img = p.image ? `<div style="text-align:center;margin-bottom:16px"><img src="${esc(resolveImageSrc(p.image))}" alt="${esc(p.title || 'Vignette')}" style="max-height:32vh;max-width:60vw;border:1px solid #4a4128;border-radius:4px;box-shadow:0 8px 40px rgba(0,0,0,.55)"></div>` : '';
+    show(`<div class="doc ${r.cls}" style="max-width:min(90vw,64ch)">
+      ${p.title ? `<h1>${esc(p.title)}</h1><div class="rule"></div>` : ''}
+      ${img}
+      <div class="body" style="${p.image ? 'max-height:44vh' : ''}">${r.html}</div>
+    </div>`);
+    fitBody();
+  }
+  if (m.type === 'transition'){
+    const p = m.payload || {};
+    show(`<div style="max-width:84vw;text-align:center">
+      <div class="rule"></div>
+      <div style="font-style:italic;font-size:clamp(24px,3.6vw,50px);line-height:1.55;color:var(--parchment)">${esc(p.text)}</div>
+      <div class="rule"></div>
+    </div>`);
+  }
+  if (m.type === 'initiative'){   /* v153 (BL-001 · piece 4b): the player-facing initiative — PC order + revealed enemy groups */
+    const p = m.payload || {};
+    const rows = (p.entries || []).map(e => {
+      const enemy = e.kind === 'grp';
+      const box = e.active ? 'background:linear-gradient(90deg,rgba(224,182,74,.22),rgba(224,182,74,.03));border-left:4px solid var(--gold)' : 'border-left:4px solid rgba(255,255,255,.06)';
+      const col = e.active ? 'var(--gold)' : 'var(--parchment)';
+      return `<div style="display:flex;align-items:center;gap:14px;padding:9px 18px;border-radius:6px;margin-top:6px;${e.sub ? 'margin-left:clamp(18px,3vw,46px);opacity:.92;' : ''}${box}">
+        <span style="width:1.4ch;text-align:center;color:var(--gold);font-size:clamp(18px,2.2vw,32px)">${e.active ? '▸' : (e.sub ? '<span style="color:rgba(255,255,255,.22)">↳</span>' : '')}</span>
+        <span style="width:2.4ch;text-align:right;font-weight:700;font-size:clamp(20px,2.6vw,38px);color:${col}">${e.init == null ? '—' : e.init}</span>
+        <span style="flex:1;font-size:${e.sub ? 'clamp(16px,1.9vw,27px)' : 'clamp(19px,2.4vw,34px)'};color:${col}">${esc(e.name)}${enemy ? ` <span style="font-size:.58em;letter-spacing:.12em;color:#d98079">✦ ENEMIES${e.count ? ' ×' + e.count : ''}</span>` : ''}${e.tag ? ` <span style="font-size:.58em;letter-spacing:.12em;color:${e.tagKind === 'walk' ? '#9fc08b' : (e.tagKind === 'mixed' ? '#8d8776' : '#a08bc0')}">${esc(String(e.tag).toUpperCase())}</span>` : ''}</span>
+      </div>`;
+    }).join('');
+    show(`<div style="width:min(92vw,54ch)">
+      <div style="text-align:center;font-family:var(--ui);letter-spacing:.34em;text-transform:uppercase;color:var(--gold);font-size:clamp(14px,1.8vw,22px)">Initiative</div>
+      <div style="text-align:center;font-family:var(--ui);letter-spacing:.18em;color:#8d8776;font-size:clamp(11px,1.3vw,15px);margin-top:3px">${p.subtitle ? esc(p.subtitle) : 'Round ' + (p.round || 1)}</div>
+      <div class="rule"></div>
+      ${p.enemyActing ? `<div style="text-align:center;font-style:italic;color:#d98079;font-size:clamp(18px,2.2vw,30px);margin:10px 0 4px">An enemy takes its turn…</div>` : ''}
+      ${rows || '<div style="text-align:center;color:#8d8776;margin-top:10px">Awaiting the order of battle…</div>'}
+    </div>`);
+    return;
+  }
+  if (m.type === 'pit'){
+    const p = m.payload || {};
+    if (p.kind === 'chalk'){
+      const rows = (p.entrants || []).map(c => {
+        const last = c.last === 'w' ? '<span class="w">won last</span>' : c.last === 'l' ? '<span class="l">lost last</span>' : '—';
+        return `<div class="chrow"><span>${esc(c.name)} <span class="chip">Tier ${['','I','II','III','IV'][c.tier] || '?'}</span></span>
+          <span class="rec">${c.w}–${c.l} · ${last}</span></div>`;
+      }).join('');
+      show(`<div class="pit"><div class="kick">The chalk · the entrants' board</div>
+        <h1 style="font-size:clamp(30px,4.6vw,60px);color:var(--gold);margin-top:8px">THE CHALK</h1>
+        <div class="rule"></div>
+        <div style="max-width:720px;margin:0 auto;text-align:left">${rows || '<div class="kick" style="margin-top:10px">nobody on the chalk yet</div>'}</div>
+        <div class="kick" style="margin-top:16px">the chip travels — honored at every pit</div></div>`);
+      return;
+    }
+    if (p.kind === 'pitch'){
+      const beats = (p.beats || []).map(b => `<div class="beat"><div class="bh">${esc(b.head)}</div><div class="bt2">${esc(b.text)}</div></div>`).join('');
+      const board = (p.board || []).filter(r => (r.lines || []).length).map(r =>
+        `<div class="obrow"><span class="obt">${esc(r.tier)} chip</span><span class="obl">${r.lines.map(x => `vs ${esc(x.vs)} — <b>${esc(x.you)}</b>`).join(' · ')}</span></div>`).join('');
+      const champ = p.champ ? `<div class="kick" style="margin-top:14px;color:var(--gold)">👑 top of the chalk — ${esc(p.champ.name)} · ${esc(p.champ.tier)}</div>` : '';
+      show(`<div class="pit">
+        <div class="kick">${esc(p.venue || 'the pit')} · the boss explains the game</div>
+        <h1 style="font-size:clamp(26px,4vw,52px);color:var(--gold);margin-top:8px">THE PITCH</h1>
+        <div class="rule"></div>
+        <div class="beats">${beats}</div>
+        ${board ? `<div class="oboard"><div class="obh">THE ODDS BOARD — your line, by your chip, against your tier and up</div>${board}
+          <div class="obn">a win shortens your line · a loss lengthens it · the book remembers</div></div>` : ''}
+        ${champ}
+        ${p.outro ? `<div class="call" style="margin-top:16px">“${esc(p.outro)}”<span class="who">— ${esc(p.boss || 'the pit boss')}</span></div>` : ''}
+      </div>`);
+      return;
+    }
+    const tierName = t => ['','Tier I','Tier II','Tier III','Tier IV'][t] || '';
+    const ftr = (f, isWin) => `<div class="ftr${isWin ? ' win' : ''}">
+      <div class="nm">${esc(f.name)}</div>
+      <div class="meta">${f.tier ? `<span class="chip">${tierName(f.tier)}</span>` : (f.chalk ? '<span class="chip">the chalk</span>' : '')}${f.top ? '<span class="chip">👑 top of the chalk</span>' : ''}<span class="odds">${esc(f.odds || '')}</span></div>
+    </div>`;
+    const aWin = p.settled && p.winner === (p.fa || {}).name;
+    const bWin = p.settled && p.winner === (p.fb || {}).name;
+    let status, method = '';
+    if (p.settled){
+      status = `<div class="status result">${esc(String(p.winner).toUpperCase())} WINS</div>`;
+      method = `<div class="method">${p.koRound ? `knockout · round ${p.koRound}` : p.decidedRound ? `by decision · round ${p.decidedRound}` : 'as called at the rope'}</div>`;
+    }
+    else if (p.sudden) status = '<div class="status sudden">SUDDEN DEATH</div>';
+    else status = p.betsOpen ? '<div class="status open">BETS OPEN</div>' : '<div class="status closed">BETS CLOSED</div>';
+    const rounds = (p.rounds || []).map(r => {
+      const wn = r.result === 'a' ? (p.fa || {}).name : r.result === 'b' ? (p.fb || {}).name : '';
+      const tail = r.ko ? ` — <span class="ko">KNOCKOUT</span>` : r.result === 'draw' ? ' — even' : ` — <span class="rw">${esc(wn)}</span>`;
+      return `<div class="rr">Round ${r.n}: ${esc((p.fa || {}).name)} ${r.ta} · ${esc((p.fb || {}).name)} ${r.tb}${tail}</div>`;
+    }).join('');
+    const tally = (p.rounds || []).length ? `<div class="tally">${(p.tally || {}).a || 0}–${(p.tally || {}).b || 0}</div>` : '';
+    const betList = p.bets || [];
+    const shown = betList.slice(0, 10);
+    const bets = betList.length ? `<div class="bets">${shown.map(x =>
+        `<div class="bt"><span class="who">${esc(x.bettor)}</span><span class="on">on ${esc(x.fighter)}</span><span class="amt">${esc(String(x.stake))} gp @ ${esc(x.odds || '')}</span></div>`).join('')}
+      ${betList.length > 10 ? `<div class="kick" style="margin-top:5px">+ ${betList.length - 10} more on the book</div>` : ''}</div>` : '';
+    const ooList = p.oo || [];
+    const ooShown = ooList.slice(0, 8);
+    const oo = ooList.length ? `<div class="bets">
+      <div class="kick" style="margin:12px 0 4px;font-size:clamp(10px,1.1vw,13px)">side wagers · the house's discretion</div>
+      ${ooShown.map(x => `<div class="bt"><span class="who">${x.settled ? (x.won ? '<span style="color:var(--gold)">✓</span> ' : '<span style="color:#d98079">✗</span> ') : ''}${esc(x.bettor)}</span><span class="on">${esc(x.terms)}</span><span class="amt">${esc(String(x.stake))} gp @ ${esc(x.odds || '')}</span></div>`).join('')}
+      ${ooList.length > 8 ? `<div class="kick" style="margin-top:5px">+ ${ooList.length - 8} more at the rope</div>` : ''}</div>` : '';
+    const promo = p.promo ? `<div class="promo">${esc(p.promo)}</div>` : '';
+    const call = p.call && p.call.text ? `<div class="call">“${esc(p.call.text)}”<span class="who">— ${esc(p.boss || 'the pit boss')}</span></div>` : '';
+    show(`<div class="pit">
+      <div class="kick">${esc(p.venue || 'the pit')} · fight night</div>
+      <div class="card">${ftr(p.fa || {}, aWin)}<div class="vs">VS</div>${ftr(p.fb || {}, bWin)}</div>
+      ${p.grudge ? `<div class="grudge">REMATCH · ${esc(p.grudge.text)}</div>` : ''}
+      ${status}${method}${tally}${rounds ? `<div class="rounds">${rounds}</div>` : ''}${promo}${bets}${oo}${call}
+    </div>`);
+    return;
+  }
+  if (m.type === 'carnival'){
+    const p = m.payload || {};
+    if (p.kind === 'rules'){
+      const beats = (p.rules || []).map(r => `<div class="beat"><div class="bt2">${esc(r)}</div></div>`).join('');
+      show(`<div class="pit">
+        <div class="kick">the flower carnival · ${esc(p.runBy ? p.runBy + ' calls the game' : 'the midway')}</div>
+        <h1 style="font-size:clamp(26px,4vw,52px);color:var(--gold);margin-top:8px">${esc(String(p.game || '').toUpperCase())}</h1>
+        <div class="kick" style="margin-top:4px">${esc(p.price || '')}</div>
+        <div class="rule"></div>
+        ${p.barker ? `<div class="call" style="margin-top:4px">“${esc(p.barker)}”<span class="who">— ${esc(p.runBy || 'the barker')}</span></div>` : ''}
+        <div class="beats" style="margin-top:12px">${beats}</div>
+      </div>`);
+      return;
+    }
+    if (p.kind === 'shells'){
+      const names = {L:'LEFT', M:'MIDDLE', R:'RIGHT'};
+      const reveal = p.stage === 'reveal';
+      const narrow = p.stage === 'narrow';
+      const nset = narrow ? (p.narrowed || []) : [];
+      const slots = ['L','M','R'].map(s => `<div class="slot${reveal && p.call === s ? ' call' : ''}${narrow ? (nset.includes(s) ? ' twoin' : ' out') : ''}">
+          <div class="peb${reveal && p.pick === s ? ' here' : ''}"></div>
+          <div class="shell"></div>
+          <div class="slab">${names[s]}</div>
+        </div>`).join('');
+      let status;
+      if (reveal){
+        status = p.win
+          ? `<div class="status result">${esc(String(p.player || '').toUpperCase())} FINDS THE PEBBLE</div>${p.facePaint ? '<div class="method">three of five — the face paint is won (disguise self, 1 hour)</div>' : ''}`
+          : `<div class="status closed">EMPTY SHELL</div><div class="method">the pebble sat ${names[p.pick] || '?'} — ${esc(p.player || '')} called ${names[p.call] || '?'}</div>`;
+      } else if (narrow){
+        status = `<div class="status open">ODO'S HANDS SLOWED — IT'S ONE OF THESE TWO</div><div class="method">a true 50/50 — call it</div>`;
+      } else {
+        status = `<div class="status open">CALL IT — LEFT, MIDDLE, OR RIGHT</div>`;
+      }
+      const tally = p.tally && p.tally.n ? `<div class="kick" style="margin-top:12px">${p.tally.w} win${p.tally.w === 1 ? '' : 's'} in ${p.tally.n} round${p.tally.n === 1 ? '' : 's'} — three of five takes the face paint</div>` : '';
+      show(`<div class="pit carn${reveal ? '' : ' down'}">
+        <div class="kick">the flower carnival · the shell game${p.player ? ' · ' + esc(p.player) + ' at the board' : ''}</div>
+        <div class="shrow">${slots}</div>
+        <div class="statwrap">${status}${tally}</div>
+      </div>`);
+      if (reveal){
+        const el = document.querySelector('.carn');
+        requestAnimationFrame(() => requestAnimationFrame(() => { if (el) el.classList.add('reveal'); }));
+      }
+      return;
+    }
+    if (p.kind === 'ring'){
+      /* v59 · the honest midway — the arithmetic shows when the die is known */
+      const rm = p.mod ? (p.mod > 0 ? '+' + p.mod : String(p.mod)) : '';
+      const rows = (p.throws || []).map(t =>
+        `<div class="rr">Ring ${t.n}: ${t.die ? `d20 ${t.die}${rm} = ` : ''}${t.total} vs DC 18 — ${t.hit ? '<span class="rw">ON THE POST</span>' : 'short'}</div>`).join('');
+      const status = p.done
+        ? `<div class="status result">${p.pts} POINT${p.pts === 1 ? '' : 'S'}</div><div class="method">${esc(p.prize || '')}</div>`
+        : `<div class="status open">${esc(String(p.player || '').toUpperCase())} ON THE RUG</div>`;
+      show(`<div class="pit">
+        <div class="kick">the flower carnival · ring toss · Lareth calls it</div>
+        ${status}
+        ${rows ? `<div class="rounds">${rows}</div>` : ''}
+        <div class="kick" style="margin-top:14px">one point a ring — three levels of prizes</div>
+      </div>`);
+      return;
+    }
+    if (p.kind === 'wrestle'){
+      /* v59 · the honest midway — the arithmetic shows when the die is known */
+      const wm = p.mod ? (p.mod > 0 ? '+' + p.mod : String(p.mod)) : '';
+      const rows = (p.turns || []).map(t =>
+        `<div class="rr">Turn ${t.n} — ${t.style === 'pin' ? 'the pin' : 'the ring-out'}: ${esc(p.player)} ${t.pdie ? `d20 ${t.pdie}${wm} = ` : ''}${t.pt} · ${esc(p.opp)} ${t.ot} — ${t.res === 'pc' ? `<span class="rw">${esc(p.player)}</span>` : t.res === 'house' ? esc(p.opp) : 'no fall'}</div>`).join('');
+      let status;
+      if (p.done) status = p.won
+        ? `<div class="status result">${esc(String(p.player).toUpperCase())} TAKES IT</div><div class="method">${esc(p.prize || '')}</div>`
+        : `<div class="status closed">${esc(String(p.opp).toUpperCase())} HOLDS THE RING</div><div class="method">three falls in five — the prize stays home</div>`;
+      else status = `<div class="status open">${p.wins} FALL${p.wins === 1 ? '' : 's'} OF 3 · TURN ${(p.turns || []).length} OF 5</div>`;
+      show(`<div class="pit">
+        <div class="kick">the flower carnival · the wrestling circle</div>
+        <div class="card"><div class="ftr${p.done && p.won ? ' win' : ''}"><div class="nm">${esc(p.player)}</div></div>
+          <div class="vs">VS</div>
+          <div class="ftr${p.done && !p.won ? ' win' : ''}"><div class="nm">${esc(p.opp)}</div>
+            <div class="meta"><span class="chip">${p.opp === 'Frans' ? 'the master' : 'the apprentice'}</span></div></div></div>
+        ${status}
+        ${rows ? `<div class="rounds">${rows}</div>` : ''}
+      </div>`);
+      return;
+    }
+    if (p.kind === 'bouquet'){
+      const head = p.tier === 'wand' ? 'THE COUNT IS PERFECT' : p.tier === 'bouquet' ? 'THE COUNT IS RIGHT' : 'THE FLOWERS KEEP THEIR COUNT';
+      const method = p.tier === 'wand'
+        ? (p.wand ? 'even the flower tied around the stems — the bouquet, and the silver-twined wand'
+                  : 'even the flower tied around the stems — the bouquet is the prize; the wand went home with a sharper count long ago')
+        : p.tier === 'bouquet' ? `the bouquet goes home with ${esc(p.player || '')}`
+        : 'Petalla keeps the silver, and the secret';
+      show(`<div class="pit">
+        <div class="kick">the flower carnival · flowers in the bouquet · ${esc(p.player || '')}</div>
+        <div class="status ${p.tier === 'miss' ? 'closed' : 'result'}">${head}</div>
+        <div class="method">${method}</div>
+        ${p.tier === 'wand' && p.wand ? '<div class="kick" style="margin-top:16px;color:var(--gold)">✨ a nine-inch wooden wand, twined with silver — once only, ever</div>' : ''}
+      </div>`);
+      return;
+    }
+    if (p.kind === 'midway'){
+      const cols = (p.games || []).map(g => `<div class="beat"><div class="bh">${esc(g.name)}</div>
+        ${(g.plays || []).length ? g.plays.map(x => `<div class="bt2" style="font-size:clamp(13px,1.5vw,18px)">${esc(x)}</div>`).join('') : '<div class="bt2" style="font-size:clamp(13px,1.5vw,18px);color:var(--muted)">no plays yet — the barkers are patient</div>'}</div>`).join('');
+      show(`<div class="pit">
+        <div class="kick">the flower carnival · the midway board</div>
+        <h1 style="font-size:clamp(28px,4.4vw,56px);color:var(--gold);margin-top:8px">THE MIDWAY</h1>
+        <div class="rule"></div>
+        <div class="beats">${cols}</div>
+        <div class="kick" style="margin-top:16px">${p.wand ? 'the silver-twined wand has gone home' : 'somewhere in the flowers — a silver-twined wand, once only'}</div>
+      </div>`);
+      return;
+    }
+    return;
+  }
+  if (m.type === 'chasm'){ renderChasm(m.payload || {}); return; }
+  if (m.type === 'frost'){ renderFrost(m.payload || {}); return; }
+  if (m.type === 'bowl'){ renderBowl(m.payload || {}); return; }
+  if (m.type === 'dive'){ renderDive(m.payload || {}); return; }
+  if (m.type === 'river'){ renderRiver(m.payload || {}); return; }
+  if (m.type === 'amphi'){ renderAmphi(m.payload || {}); return; }
+  if (m.type === 'tree'){ renderTree(m.payload || {}); return; }
+  if (m.type === 'race'){ renderRace(m.payload || {}); return; }
+  if (m.type === 'board'){ renderBoard(m.payload || {}); return; }
+  if (m.type === 'image'){
+    const p = m.payload || {};
+    const src = resolveImageSrc(p.src || '');
+    /* fogRects: normalized [x,y,w,h] covers the DM has not yet revealed */
+    const covers = (p.fogRects || []).map(r =>
+      `<div style="position:absolute;left:${r[0]*100}%;top:${r[1]*100}%;width:${r[2]*100}%;height:${r[3]*100}%;background:#14161c"></div>`).join('');
+    show(`<div class="imgwrap"><div style="position:relative;display:inline-block;font-size:0;overflow:hidden;border-radius:4px"><img src="${esc(src)}" alt="${esc(p.caption || 'Pushed image')}">${covers}</div>${p.caption ? `<div class="cap">${esc(p.caption)}</div>` : ''}</div>`);
+  }
+  if (m.type === 'date'){
+    const p = m.payload || {};
+    const bar = document.getElementById('datebar');
+    /* v239 (BL-021): THE BANNER IS A TOGGLE NOW. Before v239 this block only ever did
+       remove('hidden') — add('hidden') for #datebar appeared nowhere in the file. 'clear' returns
+       early above, no other push type touches the bar, and the load path deliberately restores a
+       date, so once the banner was up the only way off it was reloading this window. The OFF rides
+       as a FLAG on this same push type, which is also what makes the restore gate at the foot of
+       this file replay an OFF correctly as an OFF instead of resurrecting the banner. */
+    if (m.off){
+      bar.classList.add('hidden');
+      dbStop();
+      try { localStorage.removeItem('torrentath_datebar'); } catch(e){}
+      return;
+    }
+    bar.classList.remove('hidden');
+    document.getElementById('d-text').innerHTML = `<b>${esc(p.text || '')}</b>`;
+    const w = document.getElementById('d-week');
+    const sub = p.sub || '';
+    const mm = sub.match(/^(.*)\((.*)\)\s*$/);
+    w.innerHTML = mm ? `${esc(mm[1].trim())} · <span class="god">${esc(mm[2])}</span>` : esc(sub);
+    // pips from common day name position if derivable
+    const pips = document.getElementById('d-pips');
+    pips.innerHTML = '';
+    const common = ['Kindleday','Sowday','Tendday','Forgeday','Highday','Wanderday','Marketday','Hearthday','Gleanday','Stillday'];
+    const idx = mm ? common.indexOf(mm[1].trim()) : -1;
+    if (idx >= 0){
+      for (let i = 0; i < 10; i++){
+        const s = document.createElement('span');
+        if (i <= idx) s.className = 'on';
+        pips.appendChild(s);
+      }
+    }
+    const f = document.getElementById('d-fest');
+    if (p.festivals && p.festivals.length){ f.textContent = '✦ ' + p.festivals.join(' • ') + ' ✦'; f.classList.remove('hidden'); }
+    else f.classList.add('hidden');
+    /* v239 (BL-021 facet 4): the banner's own stand-down countdown. The console sends the seconds
+       REMAINING, not the configured duration, so a live re-push (facet 5 — the banner follows the
+       clock) never silently restarts the count the table is watching. */
+    if (typeof m.dateSecs === 'number' && m.dateSecs > 0) dbStart(m.dateSecs); else dbStop();
+    /* v239 (BL-021, the Q5 ruling): an ON banner survives a reload of THIS window on its own key.
+       torrentath_msg only restores the banner when the date was the LAST push of all — push a
+       date, then a handout, then reload, and the banner was gone. An OFF removes the key above,
+       so a banner that was taken down never comes back. */
+    try { pdSet('torrentath_datebar', JSON.stringify(m)); } catch(e){}
+  }
+}
+/* — the date banner's stand-down countdown (v239, BL-021) — */
+let _dbTimer = null, _dbEnd = null, _dbDur = 0;
+function dbStart(secs){
+  const box = document.getElementById('db-timer'); if (!box) return;
+  _dbDur = secs; _dbEnd = Date.now() + secs * 1000;
+  box.classList.remove('hidden');
+  if (_dbTimer) clearInterval(_dbTimer);
+  const paint = () => {
+    const rem = Math.max(0, (_dbEnd - Date.now()) / 1000);
+    const f = document.getElementById('db-fill');
+    if (f) f.style.width = Math.round((rem / _dbDur) * 100) + '%';
+    const c = document.getElementById('db-count');
+    if (c){ const r = Math.ceil(rem); c.textContent = r >= 60 ? Math.floor(r / 60) + 'm ' + String(r % 60).padStart(2, '0') + 's' : r + 's'; }
+    /* self-hide at zero from this end too, so a console that never sends the OFF (a closed window,
+       a crashed tab) cannot strand a finished countdown on the players' screen */
+    if (rem <= 0){ dbStop(); const bar = document.getElementById('datebar'); if (bar) bar.classList.add('hidden'); try { localStorage.removeItem('torrentath_datebar'); } catch(e){} }
+  };
+  paint();
+  _dbTimer = setInterval(paint, 250);
+}
+function dbStop(){
+  const box = document.getElementById('db-timer'); if (box) box.classList.add('hidden');
+  if (_dbTimer){ clearInterval(_dbTimer); _dbTimer = null; }
+  _dbEnd = null;
+}
+/* ---- v252 (BL-026) · THE PARITY SET, on the players' side ----
+   The DM console now offers every unit on every map a flight height and a status badge. Six of the
+   eight maps' payloads therefore gained two fields — and they are the two the whiteboard already
+   travelled with since v229, `f` and `s8`, so the shape did not have to be invented, only shared.
+   These two helpers are the only place either is drawn. A renderer calls pdBadges() after it has
+   drawn a unit and it is done: ONE badge for the whole product, on both screens (the river drew a
+   circular one and the board a rounded plate — that drift ends here, on the board's). */
+function pdFlyBadge(g, cell, mx, topY, h){
+  g.save();
+  const txt = '↑' + h;
+  g.font = 'bold ' + Math.round(cell * 0.34) + 'px sans-serif';
+  const w = g.measureText(txt).width + cell * 0.28, bx = mx - w / 2, by = topY - cell * 0.5;
+  g.fillStyle = '#0f3a38'; g.strokeStyle = '#5ec7c0'; g.lineWidth = 1.2;
+  g.beginPath(); g.roundRect ? g.roundRect(bx, by, w, cell * 0.44, 3) : g.rect(bx, by, w, cell * 0.44); g.fill(); g.stroke();
+  g.fillStyle = '#9fe8e2'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText(txt, mx, by + cell * 0.23);
+  g.restore();
+}
+function pdSt8Badge(g, cell, mx, botY, s8){
+  if (!s8) return;
+  g.save();
+  g.font = 'bold ' + Math.round(cell * 0.34) + 'px sans-serif';
+  const w = g.measureText(s8).width + cell * 0.26, bx = mx - w / 2, by = botY - cell * 0.16;
+  g.fillStyle = '#3a1038'; g.strokeStyle = '#e6a0dc'; g.lineWidth = 1.2;
+  g.beginPath(); g.roundRect ? g.roundRect(bx, by, w, cell * 0.42, 3) : g.rect(bx, by, w, cell * 0.42); g.fill(); g.stroke();
+  g.fillStyle = '#f6d8f0'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText(s8, mx, by + 0.21 * cell);
+  g.restore();
+}
+/* mx = the unit's centre x · topY / botY = the top and bottom edges of the tile it occupies */
+function pdBadges(g, cell, mx, topY, botY, u){
+  if (u && typeof u.f === 'number') pdFlyBadge(g, cell, mx, topY, u.f);
+  if (u && u.s8) pdSt8Badge(g, cell, mx, botY, u.s8);
+}
+/* ---- v254 (BL-026 Phase 2) · ONE KEY FOR THE FOOTPRINT ----
+   Five console modules called it `size`, the tree pushed it as `s`, the board as `sz`. One name now:
+   **`sz`** (1 Medium · 2 Large · 3 Huge · 4 Gargantuan). `pdSz` reads it, with the retired keys kept
+   as a fallback for one build so a payload pushed by an older console still draws right. */
+function pdSz(u){ return Math.max(1, Math.min(4, (u && (u.sz != null ? u.sz : (u.size != null ? u.size : u.s))) || 1)); }
+function renderChasm(p){
+  __lastChasm = p;
+  const cols = p.cols || 50, rows = p.rows || 24, grid = p.grid || [];
+  document.body.style.background = 'radial-gradient(120% 90% at 50% 0%, #2a120a 0%, #0a0503 65%)';
+  show(`<div style="width:96vw;text-align:center">
+    <div style="font-family:var(--ui);font-size:clamp(11px,1.4vw,16px);letter-spacing:.34em;text-transform:uppercase;color:#e0a06a">The Crossing${p.label ? ' — ' + esc(p.label) : ''}</div>
+    <div style="margin-top:10px;display:inline-block;border:1px solid #5a2a16;border-radius:6px;background:#0c0603;padding:6px;box-shadow:0 12px 60px rgba(0,0,0,.6)">
+      <canvas id="pd-chasm"></canvas>
+    </div>
+    <div style="font-family:var(--ui);font-size:clamp(10px,1.2vw,14px);letter-spacing:.14em;color:#8d8776;margin-top:10px">The lava river · pale stones are footing · blue ice is conjured footing · dark holes are gone</div>
+  </div>`);
+  const cv = document.getElementById('pd-chasm'); if (!cv) return;
+  const cell = Math.max(6, Math.floor(Math.min((window.innerWidth * 0.92) / cols, (window.innerHeight * 0.68) / rows)));
+  const W = cols * cell, H = rows * cell;
+  cv.width = W; cv.height = H;
+  const g = cv.getContext('2d');
+  const grad = g.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, '#3a1408'); grad.addColorStop(.5, '#6e1e07'); grad.addColorStop(1, '#a02c06');
+  g.fillStyle = grad; g.fillRect(0, 0, W, H);
+  g.globalAlpha = .5;
+  for (let i = 0; i < 300; i++){ g.fillStyle = i % 3 ? '#c9440a' : '#f0a030'; g.fillRect((i * 89 % W), (i * 47 % H), 2, 2); }
+  g.globalAlpha = 1;
+  // faint grid across the whole flow — so a water-walker on the lava is still trackable
+  g.strokeStyle = 'rgba(255,225,190,.12)'; g.lineWidth = 1;
+  g.beginPath();
+  for (let x = 0; x <= cols; x++){ g.moveTo(x * cell + .5, 0); g.lineTo(x * cell + .5, H); }
+  for (let y = 0; y <= rows; y++){ g.moveTo(0, y * cell + .5); g.lineTo(W, y * cell + .5); }
+  g.stroke();
+  for (let y = 0; y < rows; y++){
+    const row = grid[y] || '';
+    for (let x = 0; x < cols; x++){
+      const ch = row[x] || ' ', cx = x * cell, cy = y * cell;
+      if (ch === 'l'){ g.fillStyle = '#4b4636'; g.fillRect(cx, cy, cell, cell); g.strokeStyle = '#6a6350'; g.strokeRect(cx + .5, cy + .5, cell - 1, cell - 1); continue; }
+      if (ch === 'x'){ g.fillStyle = '#1c0a04'; g.beginPath(); g.arc(cx + cell / 2, cy + cell / 2, cell / 2 - 1.5, 0, 7); g.fill(); continue; }
+      if (ch === 'i'){ // created ice footing over the flow
+        const mx = cx + cell / 2, my = cy + cell / 2, r = cell / 2 - 2;
+        g.beginPath(); g.arc(mx, my, r, 0, 7);
+        g.fillStyle = '#cfe9f4'; g.fill(); g.lineWidth = 1.5; g.strokeStyle = '#7fb6d6'; g.stroke();
+        continue;
+      }
+      if (ch !== 't' && ch !== 'c') continue;
+      const mx = cx + cell / 2, my = cy + cell / 2, r = cell / 2 - 2;
+      g.beginPath(); g.arc(mx, my, r, 0, 7);
+      g.fillStyle = ch === 'c' ? '#7c7466' : '#e9e5da'; g.fill();
+      g.lineWidth = 1.5; g.strokeStyle = ch === 'c' ? '#3a352a' : '#b7b1a2'; g.stroke();
+      if (ch === 'c'){ g.fillStyle = '#3a352a'; g.font = Math.floor(cell * .6) + 'px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('▮', mx, my); }
+    }
+  }
+  // the active crosser's reach (blue) and legal jump landings (amber), mirrored from the DM
+  (p.reach || []).forEach(c => { g.fillStyle = 'rgba(150,86,224,.30)'; g.fillRect(c.x * cell + 1, c.y * cell + 1, cell - 2, cell - 2); });
+  (p.jumps || []).forEach(c => {
+    const cx = c.x * cell, cy = c.y * cell, isLong = c.t !== 'stand';
+    g.fillStyle = isLong ? 'rgba(224,150,74,.18)' : 'rgba(95,199,192,.16)'; g.fillRect(cx + 1, cy + 1, cell - 2, cell - 2);
+    g.strokeStyle = isLong ? 'rgba(224,150,74,.85)' : 'rgba(95,199,192,.85)'; g.lineWidth = 1.5; g.setLineDash([3, 2]);
+    g.strokeRect(cx + 2, cy + 2, cell - 4, cell - 4); g.setLineDash([]);
+  });
+  (p.tokens || []).forEach(t => {
+    const sd = pdSz(t) * cell;
+    const mx = t.x * cell + sd / 2, my = t.y * cell + sd / 2;
+    g.beginPath(); g.arc(mx, my, sd / 2 - 1, 0, 7);
+    g.fillStyle = t.d ? '#555' : (t.c || '#e0b64a'); g.fill();
+    g.lineWidth = 2; g.strokeStyle = '#111'; g.stroke();
+    if (t.w){ g.strokeStyle = '#6fc0e0'; g.lineWidth = 1.5; g.beginPath(); g.arc(mx, my, cell / 2 + 1.5, 0, 7); g.stroke(); }
+    if (t.h){ g.strokeStyle = '#ff8a2a'; g.lineWidth = 2.5; g.beginPath(); g.arc(mx, my, cell / 2 + 3, 0, 7); g.stroke(); }  /* v155 (BL-011): the layer/burst caught this PC */
+    g.fillStyle = '#111'; g.font = 'bold ' + Math.max(8, Math.floor(cell * .5)) + 'px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText((t.n || ''), mx, my);
+    if (t.d){ g.strokeStyle = '#d98079'; g.lineWidth = 2; g.beginPath(); g.moveTo(mx - cell / 4, my - cell / 4); g.lineTo(mx + cell / 4, my + cell / 4); g.stroke(); }
+    pdBadges(g, cell, mx, my - cell / 2, my + cell / 2, t);
+  });
+}
+let __lastChasm = null;
+window.addEventListener('resize', () => { if (__lastChasm) renderChasm(__lastChasm); });
+/* ---------- Frost Worms battle map (scene 11.2) ---------- */
+function renderFrost(p){
+  __lastFrost = p;
+  const n = p.n || 40;
+  document.body.style.background = 'radial-gradient(120% 90% at 50% 0%, #1b2733 0%, #070b0f 65%)';
+  show(`<div style="width:96vw;text-align:center">
+    <div style="font-family:var(--ui);font-size:clamp(11px,1.4vw,16px);letter-spacing:.34em;text-transform:uppercase;color:#8fd0e8">The Frozen Field</div>
+    <div style="margin-top:10px;display:inline-block;border:1px solid #31414d;border-radius:6px;background:#0b1015;padding:6px;box-shadow:0 12px 60px rgba(0,0,0,.6)">
+      <canvas id="pd-frost"></canvas>
+    </div>
+    <div style="font-family:var(--ui);font-size:clamp(10px,1.2vw,14px);letter-spacing:.14em;color:#8d8776;margin-top:10px">Snow in every direction · grey stones are rock · dark pits are open craters</div>
+  </div>`);
+  const cv = document.getElementById('pd-frost'); if (!cv) return;
+  const cell = Math.max(5, Math.floor(Math.min((window.innerWidth * 0.92) / n, (window.innerHeight * 0.70) / n)));
+  const W = n * cell, H = n * cell;
+  cv.width = W; cv.height = H;
+  const g = cv.getContext('2d');
+  // snow field
+  g.fillStyle = '#eef3f7'; g.fillRect(0, 0, W, H);
+  g.globalAlpha = .6;
+  for (let i = 0; i < 360; i++){ const px = (i * 137 % W), py = (i * 89 % H); g.fillStyle = i % 4 ? '#dbe6ef' : '#c3d3e0'; g.fillRect(px, py, 2, 2); }
+  g.globalAlpha = 1;
+  // faint grid
+  g.strokeStyle = 'rgba(120,150,175,.24)'; g.lineWidth = 1; g.beginPath();
+  for (let x = 0; x <= n; x++){ g.moveTo(x * cell + .5, 0); g.lineTo(x * cell + .5, H); }
+  for (let y = 0; y <= n; y++){ g.moveTo(0, y * cell + .5); g.lineTo(W, y * cell + .5); }
+  g.stroke();
+  // v253 (BL-026 UAT round 1): the party's move range, which this map never had
+  (p.reach || []).forEach(c2 => {
+    g.fillStyle = 'rgba(150,86,224,.26)'; g.fillRect(c2.x * cell + 1, c2.y * cell + 1, cell - 2, cell - 2);
+  });
+  // rocks
+  (p.rocks || []).forEach(r => {
+    const cx = r[0] * cell, cy = r[1] * cell, mx = cx + cell / 2, my = cy + cell / 2, rr = cell / 2 - 2;
+    g.beginPath(); g.arc(mx, my, rr, 0, 7); g.fillStyle = '#7c7466'; g.fill();
+    g.lineWidth = 1.5; g.strokeStyle = '#3a352a'; g.stroke();
+  });
+  // craters
+  (p.holes || []).forEach(h => {
+    const size = (h.size || 4) * cell, cx = h.x * cell, cy = h.y * cell, mx = cx + size / 2, my = cy + size / 2, r = size / 2 - 2;
+    g.beginPath(); g.arc(mx, my, r, 0, 7); g.fillStyle = '#0e1116'; g.fill();
+    g.lineWidth = 2; g.strokeStyle = '#2a3340'; g.stroke();
+    g.beginPath(); g.arc(mx, my, r * 0.6, 0, 7); g.fillStyle = '#05070a'; g.fill();
+  });
+  // revealed worms
+  (p.worms || []).forEach(w => {
+    const size = pdSz(w) * cell, cx = w.x * cell, cy = w.y * cell, mx = cx + size / 2, my = cy + size / 2, r = size / 2 - 3;
+    g.beginPath(); g.arc(mx, my, r, 0, 7); g.fillStyle = '#bfe3ef'; g.fill();
+    g.lineWidth = 2.5; g.strokeStyle = '#4a7c92'; g.stroke();
+    g.fillStyle = '#153845'; g.font = 'bold ' + Math.max(11, Math.floor(size * 0.16)) + 'px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText(w.n || 'FW', mx, my);
+    pdBadges(g, cell, mx, cy, cy + size, w);
+  });
+  // player tiles
+  (p.tokens || []).forEach(t => {
+    const sd = pdSz(t) * cell;
+    const mx = t.x * cell + sd / 2, my = t.y * cell + sd / 2;
+    g.beginPath(); g.arc(mx, my, sd / 2 - 1, 0, 7);
+    g.fillStyle = t.d ? '#666' : (t.c || '#e0b64a'); g.fill();
+    g.lineWidth = 2; g.strokeStyle = '#111'; g.stroke();
+    if (t.s){ g.strokeStyle = '#6fd0e8'; g.lineWidth = 1.5; g.beginPath(); g.arc(mx, my, cell / 2 + 1.5, 0, 7); g.stroke(); }
+    g.fillStyle = '#111'; g.font = 'bold ' + Math.max(7, Math.floor(cell * .5)) + 'px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText((t.n || ''), mx, my);
+    if (t.d){ g.strokeStyle = '#d98079'; g.lineWidth = 2; g.beginPath(); g.moveTo(mx - cell / 4, my - cell / 4); g.lineTo(mx + cell / 4, my + cell / 4); g.stroke(); }
+    pdBadges(g, cell, mx, my - cell / 2, my + cell / 2, t);
+  });
+}
+let __lastFrost = null;
+window.addEventListener('resize', () => { if (__lastFrost) renderFrost(__lastFrost); });
+
+/* ---------- The Bowl of the Nine (scene 11.5) ---------- */
+function renderBowl(p){
+  __lastBowl = p;
+  const nw = p.nw || p.n || 40, nh = p.nh || p.n || 40, cx = (p.cx == null ? nw/2 : p.cx), cy = (p.cy == null ? nh/2 : p.cy), R = p.R || (Math.max(nw, nh)/2);
+  document.body.style.background = 'radial-gradient(120% 90% at 50% 0%, #241a33 0%, #0a0710 65%)';
+  show(`<div style="width:96vw;text-align:center">
+    <div style="font-family:var(--ui);font-size:clamp(11px,1.4vw,16px);letter-spacing:.34em;text-transform:uppercase;color:#b79ee8">The Bowl of the Nine</div>
+    <div style="margin-top:10px;display:inline-block;border:1px solid #3a3550;border-radius:6px;background:#0d0b14;padding:6px;box-shadow:0 12px 60px rgba(0,0,0,.6)">
+      <canvas id="pd-bowl"></canvas>
+    </div>
+    <div style="font-family:var(--ui);font-size:clamp(10px,1.2vw,14px);letter-spacing:.14em;color:#8d8776;margin-top:10px">A bowl scooped from the ice · the nine ring the heart behind a shimmering wall · the heart is rising</div>
+  </div>`);
+  const cv = document.getElementById('pd-bowl'); if (!cv) return;
+  const cell = Math.max(5, Math.floor(Math.min((window.innerWidth * 0.92) / nw, (window.innerHeight * 0.70) / nh)));
+  const W = nw * cell, H = nh * cell;
+  cv.width = W; cv.height = H;
+  const g = cv.getContext('2d');
+  const ccx = cx * cell, ccy = cy * cell, cR = R * cell;
+  // outer slope (out of play)
+  g.fillStyle = '#c4d0da'; g.fillRect(0, 0, W, H);
+  g.globalAlpha = .5;
+  for (let i = 0; i < 500; i++){ const px = (i * 149 % W), py = (i * 71 % H); g.fillStyle = i % 3 ? '#b3c2ce' : '#d6e0e8'; g.fillRect(px, py, 2, 2); }
+  g.globalAlpha = 1;
+  // bowl interior (clipped)
+  g.save(); g.beginPath(); g.arc(ccx, ccy, cR, 0, 7); g.clip();
+  g.fillStyle = '#eef3f7'; g.fillRect(0, 0, W, H);
+  const rg = g.createRadialGradient(ccx, ccy, cell, ccx, ccy, cR);
+  rg.addColorStop(0, 'rgba(120,150,180,.20)'); rg.addColorStop(.55, 'rgba(150,175,200,.05)'); rg.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = rg; g.fillRect(0, 0, W, H);
+  g.globalAlpha = .6;
+  for (let i = 0; i < 360; i++){ const px = (i * 137 % W), py = (i * 89 % H); g.fillStyle = i % 4 ? '#dbe6ef' : '#c3d3e0'; g.fillRect(px, py, 2, 2); }
+  g.globalAlpha = 1;
+  g.strokeStyle = 'rgba(120,150,175,.24)'; g.lineWidth = 1; g.beginPath();
+  for (let x = 0; x <= nw; x++){ g.moveTo(x * cell + .5, 0); g.lineTo(x * cell + .5, H); }
+  for (let y = 0; y <= nh; y++){ g.moveTo(0, y * cell + .5); g.lineTo(W, y * cell + .5); }
+  g.stroke();
+  g.strokeStyle = 'rgba(110,140,165,.16)'; g.lineWidth = 1;
+  for (let rr = R - 6; rr > 4; rr -= 6){ g.beginPath(); g.arc(ccx, ccy, rr * cell, 0, 7); g.stroke(); }
+  g.restore();
+  // rim
+  g.beginPath(); g.arc(ccx, ccy, cR, 0, 7); g.lineWidth = 3; g.strokeStyle = '#8ba3b5'; g.stroke();
+  g.beginPath(); g.arc(ccx, ccy, cR - 2, 0, 7); g.lineWidth = 1; g.strokeStyle = 'rgba(255,255,255,.7)'; g.stroke();
+  // rocks (ice rubble)
+  (p.rocks || []).forEach(r => {
+    const mx = r[0] * cell + cell / 2, my = r[1] * cell + cell / 2, rr = cell / 2 - 1;
+    g.beginPath(); g.moveTo(mx - rr, my + rr * .4); g.lineTo(mx - rr * .4, my - rr); g.lineTo(mx + rr * .5, my - rr * .5); g.lineTo(mx + rr, my + rr * .5); g.lineTo(mx - rr * .2, my + rr); g.closePath();
+    g.fillStyle = '#c3d3e0'; g.fill(); g.lineWidth = 1.5; g.strokeStyle = '#8ba3b5'; g.stroke();
+  });
+  // cube of force (shimmer)
+  if (p.cube){
+    const x = p.cube.x * cell, y = p.cube.y * cell, s = p.cube.size * cell;
+    g.fillStyle = 'rgba(130,150,220,.08)'; g.fillRect(x, y, s, s);
+    g.lineWidth = 2.5; g.strokeStyle = 'rgba(150,170,235,.7)'; g.setLineDash([2, 3]); g.strokeRect(x + 1, y + 1, s - 2, s - 2); g.setLineDash([]);
+    g.lineWidth = 1; g.strokeStyle = 'rgba(200,215,255,.5)'; g.strokeRect(x + 4, y + 4, s - 8, s - 8);
+  }
+  // move-range (striped) mirrored for the players
+  (p.reach || []).forEach(c => {
+    g.fillStyle = 'rgba(150,86,224,.26)'; g.fillRect(c.x * cell + 1, c.y * cell + 1, cell - 2, cell - 2);
+    g.strokeStyle = 'rgba(150,86,224,.6)'; g.lineWidth = 1; g.setLineDash([3, 2]); g.strokeRect(c.x * cell + 1.5, c.y * cell + 1.5, cell - 3, cell - 3); g.setLineDash([]);
+  });
+  // ritualists first, heart, then giants/mindwithers
+  const drawEnemy = e => {
+    const s = pdSz(e) * cell, x = e.x * cell, y = e.y * cell, mx = x + s / 2, my = y + s / 2, r = s / 2 - 2;
+    let fill, stroke, ink;
+    if (e.t === 'giant'){ fill = '#d4e2ea'; stroke = '#5f7f92'; ink = '#274050'; }
+    else if (e.t === 'mw'){ fill = '#c9a9e6'; stroke = '#7a4fae'; ink = '#361a4e'; }
+    else { fill = '#5a4a5e'; stroke = '#2c2230'; ink = '#eadcef'; }
+    g.beginPath(); g.arc(mx, my, r, 0, 7); g.fillStyle = e.dead ? '#8a8690' : fill; g.fill();
+    g.lineWidth = e.t === 'giant' ? 2.5 : 1.8; g.strokeStyle = e.dead ? '#6a6670' : stroke; g.stroke();
+    g.fillStyle = e.dead ? '#e8e4ee' : ink; g.font = 'bold ' + Math.max(8, Math.floor(s * 0.34)) + 'px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText(e.n, mx, my);
+    if (e.dead){ g.strokeStyle = '#d98079'; g.lineWidth = 2; g.beginPath(); g.moveTo(mx - r * .7, my - r * .7); g.lineTo(mx + r * .7, my + r * .7); g.moveTo(mx + r * .7, my - r * .7); g.lineTo(mx - r * .7, my + r * .7); g.stroke(); }
+    pdBadges(g, cell, mx, y, y + s, e);
+  };
+  (p.enemies || []).filter(e => e.t === 'rit').forEach(drawEnemy);
+  if (p.heart){
+    const hh = p.heart, x = hh.x * cell, y = hh.y * cell, s = hh.size * cell, mx = x + s / 2, my = y + s / 2, dead = hh.dead;
+    const hrg = g.createRadialGradient(mx, my, 2, mx, my, s / 2);
+    if (dead){ hrg.addColorStop(0, '#5a5560'); hrg.addColorStop(1, 'rgba(70,66,74,0)'); }
+    else { hrg.addColorStop(0, '#ff5a4a'); hrg.addColorStop(.5, 'rgba(200,40,40,.85)'); hrg.addColorStop(1, 'rgba(150,20,30,0)'); }
+    g.fillStyle = hrg; g.beginPath(); g.arc(mx, my, s / 2, 0, 7); g.fill();
+    g.beginPath(); g.arc(mx, my, s / 2 - 3, 0, 7); g.lineWidth = 2; g.strokeStyle = dead ? '#6a6570' : '#8a1f22'; g.stroke();
+    g.fillStyle = dead ? '#cfcad4' : '#3a0a0c'; g.font = 'bold ' + Math.max(9, Math.floor(s * 0.15)) + 'px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText(dead ? 'SHATTERED' : 'HEART', mx, my - 6);
+    if (!dead){ g.font = 'bold ' + Math.max(8, Math.floor(s * 0.12)) + 'px sans-serif'; g.fillStyle = '#3a0a0c'; g.fillText('↑ ' + hh.alt + ' ft', mx, my + 8); }
+  }
+  (p.enemies || []).filter(e => e.t !== 'rit').forEach(drawEnemy);
+  // player tiles
+  (p.tokens || []).forEach(t => {
+    const sd = pdSz(t) * cell;
+    const mx = t.x * cell + sd / 2, my = t.y * cell + sd / 2;
+    g.beginPath(); g.arc(mx, my, sd / 2 - 1, 0, 7);
+    g.fillStyle = t.d ? '#666' : (t.c || '#e0b64a'); g.fill();
+    g.lineWidth = 2; g.strokeStyle = '#111'; g.stroke();
+    if (t.s){ g.strokeStyle = '#6fd0e8'; g.lineWidth = 1.5; g.beginPath(); g.arc(mx, my, cell / 2 + 1.5, 0, 7); g.stroke(); }
+    g.fillStyle = '#111'; g.font = 'bold ' + Math.max(7, Math.floor(cell * .5)) + 'px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText((t.n || ''), mx, my);
+    if (t.d){ g.strokeStyle = '#d98079'; g.lineWidth = 2; g.beginPath(); g.moveTo(mx - cell / 4, my - cell / 4); g.lineTo(mx + cell / 4, my + cell / 4); g.stroke(); }
+    pdBadges(g, cell, mx, my - cell / 2, my + cell / 2, t);
+  });
+}
+let __lastBowl = null;
+window.addEventListener('resize', () => { if (__lastBowl) renderBowl(__lastBowl); });
+
+/* ---------- The Shot that Rang Across an Empire (1.2) — amphi push ---------- */
+/* v190 (BL-008): renders the DM's focus window of the amphitheater battle map. The static
+   geometry (walls, oval, dais, rings, rend, ropes, guard posts) is fixed and mirrors the
+   console's map config; the payload carries only the window and the live
+   tokens/foes/reach. */
+const AMD_CFG = {
+  cols: 62, rows_n: 54,
+  outer: {cx: 31, cy: 23, rx: 26.5, ry: 21.5},
+  oval:  {cx: 31, cy: 16, rx: 15.5, ry: 8.5},
+  dais:  {x: 27, y: 8, w: 8, h: 4},
+  daisStairsN: {x: 29, y: 5, w: 4, h: 3},
+  daisStairsS: {x: 29, y: 12, w: 4, h: 2},
+  door:  {x: 30, y: 0, w: 3},
+  sdais: {cx: 31, cy: 29.5, rx: 6.2, ry: 4.8},
+  corStairs: {x: 28, y: 25, w: 7, h: 3},
+  rings: [ {cx: 15.5, cy: 10, r: 1.7}, {cx: 46.5, cy: 10, r: 1.7}, {cx: 31, cy: 30.5, r: 1.7} ],
+  rend: {x: 30, y: 43, w: 4, h: 1},   /* 4 sq E–W × 1 sq N–S on the south wall, aligned with the door */
+  ropes: [
+    {x1: 7,  y1: 18, x2: 15, y2: 18, g: 4,  k: {x: 11, y: 19}, gside: -1},
+    {x1: 47, y1: 18, x2: 55, y2: 18, g: 5,  k: {x: 51, y: 19}, gside: -1},
+    {x1: 26, y1: 4, x2: 26, y2: 8,  g: 5,  k: {x: 23, y: 6},  gside: -1},
+    {x1: 36, y1: 4, x2: 36, y2: 8,  g: 6,  k: {x: 39, y: 6},  gside: 1},
+    {x1: 14, y1: 37, x2: 48, y2: 37, g: 13, k: null, gside: -1, sag: 1},
+    {x1: 0,  y1: 32, x2: 5,  y2: 32, g: 6,  k: null, gside: -1},
+    {x1: 56, y1: 31, x2: 61, y2: 31, g: 6,  k: null, gside: -1}
+  ]
+};
+const AMD_T = {OUT: 0, FLOOR: 1, OVAL: 2, DAIS: 3, STAIR: 4, WALL: 5, ARCH: 6, PLAZA: 7, SDAIS: 8};
+let __amdGrid = null;
+function amdGrid(cm){
+  if (__amdGrid) return __amdGrid;
+  const g = new Uint8Array(cm.cols * cm.rows_n);
+  const o = cm.outer, v = cm.oval;
+  const at = (x, y) => y * cm.cols + x;
+  for (let y = 0; y < cm.rows_n; y++) for (let x = 0; x < cm.cols; x++){
+    const nx = (x + 0.5 - o.cx) / o.rx, ny = (y + 0.5 - o.cy) / o.ry;
+    const r = nx * nx + ny * ny;
+    let t = AMD_T.OUT;
+    if (r <= 0.92) t = AMD_T.FLOOR;
+    else if (r <= 1.06) t = AMD_T.WALL;
+    if (t === AMD_T.FLOOR){
+      const ix = (x + 0.5 - v.cx) / v.rx, iy = (y + 0.5 - v.cy) / v.ry;
+      if (ix * ix + iy * iy <= 1) t = AMD_T.OVAL;
+    }
+    g[at(x, y)] = t;
+  }
+  const box = (b, t, only) => { for (let y = b.y; y < b.y + b.h; y++) for (let x = b.x; x < b.x + b.w; x++){ if (x < 0 || y < 0 || x >= cm.cols || y >= cm.rows_n) continue; if (only && only.indexOf(g[at(x, y)]) < 0) continue; g[at(x, y)] = t; } };
+  for (let y = 0; y < cm.rows_n; y++) for (let x = 0; x < cm.cols; x++){
+    if (g[at(x, y)] !== AMD_T.WALL) continue;
+    if (x <= 8 && y >= 20 && y <= 26) g[at(x, y)] = AMD_T.ARCH;
+    else if (x >= 53 && y >= 20 && y <= 26) g[at(x, y)] = AMD_T.ARCH;
+    else if (y >= 41 && x >= 27 && x <= 35) g[at(x, y)] = AMD_T.ARCH;
+  }
+  for (let y = 42; y <= 51; y++) for (let x = 25; x <= 37; x++) if (g[at(x, y)] === AMD_T.OUT) g[at(x, y)] = AMD_T.STAIR;
+  for (let y = 13; y <= 33; y++) for (let x = 0; x < cm.cols; x++) if ((x <= 8 || x >= 53) && g[at(x, y)] === AMD_T.OUT) g[at(x, y)] = AMD_T.PLAZA;
+  const sd = cm.sdais;
+  for (let y = 0; y < cm.rows_n; y++) for (let x = 0; x < cm.cols; x++){
+    if (g[at(x, y)] !== AMD_T.FLOOR) continue;
+    const sx = (x + 0.5 - sd.cx) / sd.rx, sy = (y + 0.5 - sd.cy) / sd.ry;
+    if (sx * sx + sy * sy <= 1) g[at(x, y)] = AMD_T.SDAIS;
+  }
+  box(cm.corStairs, AMD_T.STAIR);
+  box(cm.daisStairsN, AMD_T.STAIR, [AMD_T.FLOOR, AMD_T.OVAL]);
+  box(cm.dais, AMD_T.DAIS, [AMD_T.FLOOR, AMD_T.OVAL, AMD_T.STAIR]);
+  box(cm.daisStairsS, AMD_T.STAIR, [AMD_T.OVAL, AMD_T.FLOOR]);
+  __amdGrid = g;
+  return g;
+}
+function renderAmphi(p){
+  __lastAmphi = p;
+  const cm = AMD_CFG;
+  const nw = p.nw || 40, nh = p.nh || 40, x0 = p.x0 || 0, y0 = p.y0 || 0;
+  document.body.style.background = 'radial-gradient(120% 90% at 50% 0%, #241a33 0%, #0a0710 65%)';
+  show(`<div style="width:96vw;text-align:center">
+    <div style="font-family:var(--ui);font-size:clamp(11px,1.4vw,16px);letter-spacing:.34em;text-transform:uppercase;color:#b79ee8">The Shot that Rang Across an Empire</div>
+    <div style="margin-top:10px;display:inline-block;border:1px solid #3a3550;border-radius:6px;background:#0d0b14;padding:6px;box-shadow:0 12px 60px rgba(0,0,0,.6)">
+      <canvas id="pd-amphi"></canvas>
+    </div>
+    <div style="font-family:var(--ui);font-size:clamp(10px,1.2vw,14px);letter-spacing:.14em;color:#8d8776;margin-top:10px">The amphitheater of Trionshen · rings of violet light on the honored floor · the celebration is a battlefield</div>
+  </div>`);
+  const cv = document.getElementById('pd-amphi'); if (!cv) return;
+  const cell = Math.max(5, Math.floor(Math.min((window.innerWidth * 0.92) / nw, (window.innerHeight * 0.70) / nh)));
+  const W = nw * cell, H = nh * cell;
+  cv.width = W; cv.height = H;
+  const g = cv.getContext('2d');
+  g.save();
+  g.translate(-x0 * cell, -y0 * cell);
+  const grid = amdGrid(cm);
+  const C = { [AMD_T.OUT]: '#191621', [AMD_T.FLOOR]: '#c9bda6', [AMD_T.OVAL]: '#ded2b8', [AMD_T.DAIS]: '#b39a6d',
+    [AMD_T.STAIR]: '#bdae92', [AMD_T.WALL]: '#57504a', [AMD_T.ARCH]: '#a99a7f', [AMD_T.PLAZA]: '#a89c88', [AMD_T.SDAIS]: '#c3b28c' };
+  g.fillStyle = C[AMD_T.OUT]; g.fillRect(x0 * cell, y0 * cell, W, H);
+  for (let y = Math.max(0, y0); y < Math.min(cm.rows_n, y0 + nh); y++) for (let x = Math.max(0, x0); x < Math.min(cm.cols, x0 + nw); x++){
+    const t = grid[y * cm.cols + x];
+    if (t === AMD_T.OUT) continue;
+    g.fillStyle = C[t]; g.fillRect(x * cell, y * cell, cell, cell);
+  }
+  g.strokeStyle = 'rgba(90,75,50,.55)'; g.lineWidth = 2;
+  g.beginPath(); g.ellipse(cm.oval.cx * cell, cm.oval.cy * cell, cm.oval.rx * cell, cm.oval.ry * cell, 0, 0, 7); g.stroke();
+  g.strokeStyle = 'rgba(90,75,50,.30)'; g.lineWidth = 1;
+  [0.72, 0.52, 0.32].forEach(f => { g.beginPath(); g.ellipse(cm.oval.cx * cell, (cm.oval.cy + 1.5) * cell, cm.oval.rx * f * cell, cm.oval.ry * f * cell, 0, Math.PI * 0.15, Math.PI * 0.85); g.stroke(); });
+  const d = cm.dais;
+  g.strokeStyle = '#6d5836'; g.lineWidth = 2; g.strokeRect(d.x * cell + 1, d.y * cell + 1, d.w * cell - 2, d.h * cell - 2);
+  g.fillStyle = 'rgba(224,182,74,.25)'; g.fillRect(d.x * cell + 1, d.y * cell + 1, d.w * cell - 2, d.h * cell - 2);
+  const hatch = b => { g.strokeStyle = 'rgba(80,66,44,.6)'; g.lineWidth = 1; for (let i = 1; i < b.h * 2; i++){ const yy = b.y * cell + i * cell / 2; g.beginPath(); g.moveTo(b.x * cell + 2, yy); g.lineTo((b.x + b.w) * cell - 2, yy); g.stroke(); } };
+  hatch(cm.daisStairsN); hatch(cm.daisStairsS); hatch(cm.corStairs); hatch({x: 25, y: 44, w: 13, h: 7});
+  (function(){
+    const sd = cm.sdais, halfGapRad = Math.asin(Math.min(0.95, ((cm.corStairs.w / 2) + 0.2) / sd.rx));
+    const a0 = -Math.PI / 2 + halfGapRad, a1 = -Math.PI / 2 - halfGapRad + Math.PI * 2;
+    g.strokeStyle = '#6d5836'; g.lineWidth = 2;
+    g.beginPath(); g.ellipse(sd.cx * cell, sd.cy * cell, sd.rx * cell, sd.ry * cell, 0, a0, a1); g.stroke();
+  })();
+  g.fillStyle = '#e0b64a'; g.fillRect(cm.door.x * cell, (cm.door.y + 0.35) * cell, cm.door.w * cell, cell * 0.6);
+  g.strokeStyle = '#8a6d3b'; g.lineWidth = 1.5;
+  g.strokeRect((cm.outer.cx - 0.6) * cell, (d.y + 0.35) * cell, 1.2 * cell, 0.9 * cell);
+  if (p.sprung){ cm.rings.forEach(rg => {
+    const cx = rg.cx * cell, cy = rg.cy * cell, r = rg.r * cell;
+    g.fillStyle = 'rgba(150,86,224,.20)'; g.beginPath(); g.arc(cx, cy, r, 0, 7); g.fill();
+    g.strokeStyle = 'rgba(178,102,247,.95)'; g.lineWidth = 2.5; g.beginPath(); g.arc(cx, cy, r, 0, 7); g.stroke();
+    g.strokeStyle = 'rgba(210,160,255,.8)'; g.lineWidth = 1;
+    for (let i = 0; i < 8; i++){ const a = i * Math.PI / 4; g.beginPath(); g.moveTo(cx + Math.cos(a) * r * 0.55, cy + Math.sin(a) * r * 0.55); g.lineTo(cx + Math.cos(a) * r * 0.9, cy + Math.sin(a) * r * 0.9); g.stroke(); }
+  }); }
+  if (p.rend){
+    const rd = cm.rend, rx = rd.x * cell, ry = rd.y * cell, rw = (rd.w || 4) * cell, rh = (rd.h || 1) * cell;
+    g.fillStyle = 'rgba(150,86,224,.30)'; g.fillRect(rx, ry + rh * 0.15, rw, rh * 0.7);
+    g.strokeStyle = '#b266f7'; g.lineWidth = 2.5;
+    g.beginPath(); g.moveTo(rx, ry + rh * 0.5);
+    for (let i = 1; i <= 8; i++){ g.lineTo(rx + (rw * i) / 8, ry + rh * (i % 2 ? 0.3 : 0.7)); }
+    g.stroke();
+    g.strokeStyle = 'rgba(178,102,247,.35)'; g.lineWidth = 6; g.beginPath(); g.moveTo(rx, ry + rh * 0.5); g.lineTo(rx + rw, ry + rh * 0.5); g.stroke();
+  }
+  cm.ropes.forEach(rp => {
+    g.strokeStyle = '#a03e3e'; g.lineWidth = 2;
+    g.beginPath();
+    if (rp.sag){ g.moveTo((rp.x1 + 0.5) * cell, (rp.y1 + 0.5) * cell); g.quadraticCurveTo((rp.x1 + rp.x2 + 1) / 2 * cell, (rp.y1 + 0.5 + rp.sag * 2) * cell, (rp.x2 + 0.5) * cell, (rp.y2 + 0.5) * cell); }
+    else { g.moveTo((rp.x1 + 0.5) * cell, (rp.y1 + 0.5) * cell); g.lineTo((rp.x2 + 0.5) * cell, (rp.y2 + 0.5) * cell); }
+    g.stroke();
+    [[rp.x1, rp.y1], [rp.x2, rp.y2]].forEach(pt => { g.fillStyle = '#6d5836'; g.beginPath(); g.arc((pt[0] + 0.5) * cell, (pt[1] + 0.5) * cell, cell * 0.18, 0, 7); g.fill(); });
+  });
+  g.strokeStyle = 'rgba(70,60,45,.18)'; g.lineWidth = 1; g.beginPath();
+  for (let x = x0; x <= x0 + nw; x++){ g.moveTo(x * cell + .5, y0 * cell); g.lineTo(x * cell + .5, (y0 + nh) * cell); }
+  for (let y = y0; y <= y0 + nh; y++){ g.moveTo(x0 * cell, y * cell + .5); g.lineTo((x0 + nw) * cell, y * cell + .5); }
+  g.stroke();
+  g.restore();
+  /* window-relative dynamics */
+  (p.reach || []).forEach(r => {
+    g.fillStyle = 'rgba(150,86,224,.28)'; g.fillRect(r.x * cell + 1, r.y * cell + 1, cell - 2, cell - 2);
+    g.strokeStyle = 'rgba(150,86,224,.6)'; g.lineWidth = 1; g.setLineDash([3, 2]); g.strokeRect(r.x * cell + 1.5, r.y * cell + 1.5, cell - 3, cell - 3); g.setLineDash([]);
+  });
+  (p.allies || []).forEach(a => {
+    const px = (a.x + 0.5) * cell, py = (a.y + 0.5) * cell;
+    if (a.dead){
+      g.fillStyle = 'rgba(90,90,96,.75)'; g.beginPath(); g.arc(px, py, cell * 0.3, 0, 7); g.fill();
+      g.fillStyle = '#c8c8cc'; g.font = Math.round(cell * 0.46) + 'px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('☠', px, py + 0.5);
+      return;
+    }
+    if (a.t === 'knight'){
+      g.fillStyle = '#3f6e8f'; g.beginPath(); g.moveTo(px, py - cell * 0.42); g.lineTo(px + cell * 0.4, py); g.lineTo(px, py + cell * 0.42); g.lineTo(px - cell * 0.4, py); g.closePath(); g.fill();
+      g.strokeStyle = '#bcd6e8'; g.lineWidth = 1; g.stroke();
+      g.fillStyle = '#eaf2f8'; g.font = 'bold ' + Math.round(cell * 0.5) + 'px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('K', px, py + 0.5);
+    } else {
+      g.fillStyle = '#5b8bab'; g.beginPath(); g.arc(px, py, cell * 0.3, 0, 7); g.fill();
+      g.fillStyle = '#eaf2f8'; g.font = 'bold ' + Math.round(cell * 0.42) + 'px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('G', px, py + 0.5);
+    }
+    pdBadges(g, cell, px, py - cell * 0.5, py + cell * 0.5, a);
+  });
+  (p.guests || []).forEach(gu => {
+    const px = (gu.x + 0.5) * cell, py = (gu.y + 0.5) * cell;
+    g.fillStyle = '#efe6cf'; g.beginPath(); g.arc(px, py, cell * 0.27, 0, 7); g.fill();
+    g.strokeStyle = 'rgba(90,75,50,.55)'; g.lineWidth = 1; g.beginPath(); g.arc(px, py, cell * 0.27, 0, 7); g.stroke();
+  });
+  (p.court || []).forEach(c => {
+    const px = (c.x + 0.5) * cell, py = (c.y + 0.5) * cell;
+    g.fillStyle = c.d ? '#7a6a4a' : '#d9a83c';
+    g.beginPath(); g.arc(px, py, cell * 0.4, 0, 7); g.fill();
+    g.strokeStyle = '#6d5318'; g.lineWidth = 1.5; g.beginPath(); g.arc(px, py, cell * 0.4, 0, 7); g.stroke();
+    g.fillStyle = '#241a06'; g.font = 'bold ' + Math.round(cell * 0.5) + 'px serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText(c.l || '', px, py + 0.5);
+    if (c.d){ g.strokeStyle = '#d98079'; g.lineWidth = 2; g.beginPath(); g.moveTo(px - cell * 0.35, py - cell * 0.35); g.lineTo(px + cell * 0.35, py + cell * 0.35); g.stroke(); }
+  });
+  (p.foes || []).forEach(e => {
+    const px = (e.x + 0.5) * cell, py = (e.y + 0.5) * cell;
+    if (e.dead){
+      g.fillStyle = 'rgba(90,90,96,.75)'; g.beginPath(); g.arc(px, py, cell * 0.34, 0, 7); g.fill();
+      g.fillStyle = '#c8c8cc'; g.font = Math.round(cell * 0.5) + 'px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('☠', px, py + 0.5);
+      return;
+    }
+    g.fillStyle = e.t === 'boss' ? '#7a1f1f' : '#b23434';
+    g.beginPath(); g.arc(px, py, cell * pdSz(e) * (e.t === 'boss' ? 0.42 : 0.34), 0, 7); g.fill();
+    if (e.t === 'boss'){ g.strokeStyle = '#e0b64a'; g.lineWidth = 2; g.beginPath(); g.arc(px, py, cell * 0.42, 0, 7); g.stroke(); }
+    g.fillStyle = '#f5e9dc'; g.font = 'bold ' + Math.round(cell * 0.36) + 'px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText(e.n || '', px, py + 0.5);
+    pdBadges(g, cell, px, py - cell * 0.5, py + cell * 0.5, e);
+  });
+  (p.tokens || []).forEach(t => {
+    const px = t.x * cell, py = t.y * cell, sd = pdSz(t) * cell;
+    g.fillStyle = t.d ? '#666' : (t.c || '#e0b64a');
+    g.beginPath(); g.arc(px + sd / 2, py + sd / 2, sd * 0.4, 0, 7); g.fill();
+    g.strokeStyle = 'rgba(0,0,0,.5)'; g.lineWidth = 1; g.beginPath(); g.arc(px + sd / 2, py + sd / 2, sd * 0.4, 0, 7); g.stroke();
+    g.fillStyle = '#14161c'; g.font = 'bold ' + Math.round(Math.min(sd * 0.42, cell * 0.5)) + 'px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText(t.n || '', px + sd / 2, py + sd / 2 + 0.5);
+    if (t.d){ g.strokeStyle = '#d98079'; g.lineWidth = 2; g.beginPath(); g.moveTo(px + 3, py + 3); g.lineTo(px + cell - 3, py + cell - 3); g.moveTo(px + cell - 3, py + 3); g.lineTo(px + 3, py + cell - 3); g.stroke(); }
+    pdBadges(g, cell, px + cell / 2, py, py + cell, t);
+  });
+}
+let __lastAmphi = null;
+window.addEventListener('resize', () => { if (__lastAmphi) renderAmphi(__lastAmphi); });
+
+/* ===== v198 (BL-007): The Battle for Oospufmorn — the trunk stair (6.3) + the platform (6.4) =====
+   Geometry mirrors the console's OS_SCENES configs exactly; hidden things never reach this payload. */
+const OSD_SCENES = {
+  '6.3': { kind: 'spiral', cols: 26, rows_n: 26, cx: 13, cy: 13, trunkR: 8.8, ringR: 10.4, stairR: 9.85, rail: false,
+           seamA: 97, wedge: {a0: 80, a1: 96}, entry: {a: 106, r: 9.7} },
+  '6.4': { kind: 'platform', cols: 30, rows_n: 30, cx: 15, cy: 15, trunkR: 7.6, ringR: 10.8, rail: true,
+           wedge: {a0: 79, a1: 101}, entry: {a: 90, r: 9.2},
+           bore: {a: -70, r: [0.9, 1.8, 3.6]}, circle: {a: -38, r: 9.2, rad: 1.6} }
+};
+const osdRad = a => a * Math.PI / 180;
+function osdCellR(cm, x, y){ const dx = x + 0.5 - cm.cx, dy = y + 0.5 - cm.cy; return Math.sqrt(dx * dx + dy * dy); }
+function osdInWedge(cm, x, y){ if (!cm.wedge) return false; const a = Math.atan2(y + 0.5 - cm.cy, x + 0.5 - cm.cx) * 180 / Math.PI; return a >= cm.wedge.a0 && a <= cm.wedge.a1; }
+function osdAngPos(cm, a, r){ return { x: Math.round(cm.cx + Math.cos(osdRad(a)) * r - 0.5), y: Math.round(cm.cy + Math.sin(osdRad(a)) * r - 0.5) }; }
+/* the bore's opening at a stage (1–3) — identical geometry to the console's osBoreC/osInBore */
+function osdBoreC(cm, stage){ const r = cm.bore.r[Math.max(1, Math.min(stage, cm.bore.r.length)) - 1]; const d = cm.trunkR - r; return {x: cm.cx + Math.cos(osdRad(cm.bore.a)) * d, y: cm.cy + Math.sin(osdRad(cm.bore.a)) * d, r}; }
+function osdInBore(cm, stage, x, y){ if (!cm.bore || !stage) return false; const b = osdBoreC(cm, stage); return Math.hypot(x + 0.5 - b.x, y + 0.5 - b.y) <= b.r; }
+/* v200: the flight badge — a teal wing chip with the height above platform level */
+function osdFlyBadge(g, cell, px, topY, h){
+  g.save();
+  const txt = '↑' + h;
+  g.font = 'bold ' + Math.round(cell * 0.34) + 'px sans-serif';
+  const w = g.measureText(txt).width + cell * 0.28;
+  const bx = px - w / 2, by = topY - cell * 0.5;
+  g.fillStyle = '#0f3a38'; g.strokeStyle = '#5ec7c0'; g.lineWidth = 1.2;
+  g.beginPath(); g.roundRect ? g.roundRect(bx, by, w, cell * 0.44, 3) : g.rect(bx, by, w, cell * 0.44); g.fill(); g.stroke();
+  g.fillStyle = '#9fe8e2'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText(txt, px, by + cell * 0.23);
+  g.restore();
+}
+/* the spiral stair raster — identical sampling to the console's osStairSet */
+function osdStairSet(cm){
+  if (cm.__stair) return cm.__stair;
+  const stair = new Set(), wedge = new Set();
+  let px = null, py = null;
+  for (let a = 0; a <= 360; a += 0.25){
+    const x = Math.floor(cm.cx + Math.cos(osdRad(a)) * cm.stairR);
+    const y = Math.floor(cm.cy + Math.sin(osdRad(a)) * cm.stairR);
+    const set = (a >= cm.wedge.a0 && a <= cm.wedge.a1) ? wedge : stair;
+    set.add(x + ',' + y);
+    /* 4-connect the raster: a diagonal step adds the outer elbow cell so the stair never touches
+       corner-to-corner (it must read as a solid run, not a checker) */
+    if (px !== null && x !== px && y !== py){
+      const c1 = {x, y: py}, c2 = {x: px, y};
+      const pick = (Math.abs(Math.hypot(c1.x + 0.5 - cm.cx, c1.y + 0.5 - cm.cy) - cm.stairR) <
+                    Math.abs(Math.hypot(c2.x + 0.5 - cm.cx, c2.y + 0.5 - cm.cy) - cm.stairR)) ? c1 : c2;
+      set.add(pick.x + ',' + pick.y);
+    }
+    px = x; py = y;
+  }
+  wedge.forEach(k => stair.delete(k));
+  cm.__stair = {stair, wedge};
+  return cm.__stair;
+}
+
+/* v205 (BL-016 P3) — the Cornell Scrying Broadcast */
+/* v209 (BL-016 Piece 9/10) — the broadcast at full r001 Live-Race-Feed fidelity: runner alerts,
+   the consecutive-fast meta, the guide's pinned hint bar, the marquee ticker (hover pauses it),
+   rank flashes, the TRUE finish splash — win particles, the six wolves, the booth's finish call,
+   the top-ten standings, click anywhere to dismiss to the full final board — the synthesized
+   horn / crowd / wolf-howl finish audio, and the ⇄ booth / ⛶ fullscreen view controls. */
+const pdRace = {booth: true, dismissed: false, finishPlayed: false, last: null};
+function pdRaceToggleBooth(){ pdRace.booth = !pdRace.booth; if (pdRace.last) renderRace(pdRace.last); }
+function pdRaceToggleFS(){ if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {}); else document.exitFullscreen(); }
+function pdRaceDismiss(){ if (!pdRace.dismissed){ pdRace.dismissed = true; if (pdRace.last) renderRace(pdRace.last); } }
+
+/* — the synthesized audio (carried verbatim from the r001 LRF; every call is try-guarded) — */
+let _actx = null;
+function getACtx(){ if (!_actx) _actx = new (window.AudioContext || window.webkitAudioContext)(); return _actx; }
+/* v215 (UX sweep): a player-side mute for the synthesized finish audio — display-local, remembered */
+function pdMuted(){ try { return localStorage.getItem('torrentath_pd_mute') === '1'; } catch(e){ return false; } }
+function pdToggleMute(){ try { localStorage.setItem('torrentath_pd_mute', pdMuted() ? '0' : '1'); } catch(e){} if (pdRace.last) renderRace(pdRace.last); }
+document.addEventListener('click', () => { try { if (_actx && _actx.state === 'suspended') _actx.resume(); } catch(e){} });
+function playHorn(){if (pdMuted()) return;try{const c=getACtx();const notes=[220,277,330,415,330,415,523];const times=[0,.18,.36,.54,.72,.90,1.08];const durs=[.22,.22,.22,.22,.22,.22,.6];notes.forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sawtooth';o.frequency.value=f;const t=c.currentTime+times[i];g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.25,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+durs[i]);o.start(t);o.stop(t+durs[i]);});}catch(e){}}
+function playCrowd(big = true){if (pdMuted()) return;try{const c=getACtx();const bl=c.sampleRate*(big?3:1.5);const buf=c.createBuffer(1,bl,c.sampleRate);const d=buf.getChannelData(0);for(let i=0;i<bl;i++)d[i]=(Math.random()*2-1)*.3;const s=c.createBufferSource();s.buffer=buf;const f=c.createBiquadFilter();f.type='bandpass';f.frequency.value=big?600:400;f.Q.value=0.5;const g=c.createGain();s.connect(f);f.connect(g);g.connect(c.destination);g.gain.setValueAtTime(0,c.currentTime);g.gain.linearRampToValueAtTime(big?.6:.3,c.currentTime+.3);g.gain.linearRampToValueAtTime(big?.4:.15,c.currentTime+(big?2:1));g.gain.linearRampToValueAtTime(0,c.currentTime+(big?3:1.5));s.start();s.stop(c.currentTime+(big?3.1:1.6));}catch(e){}}
+function playHowl(){if (pdMuted()) return;try{const c=getACtx();[0,.4,.8].forEach(off=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';const t=c.currentTime+off;o.frequency.setValueAtTime(200+Math.random()*60,t);o.frequency.linearRampToValueAtTime(400+Math.random()*80,t+.4);o.frequency.linearRampToValueAtTime(300+Math.random()*40,t+.9);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.15,t+.1);g.gain.linearRampToValueAtTime(.12,t+.7);g.gain.linearRampToValueAtTime(0,t+.95);o.start(t);o.stop(t+1);});}catch(e){}}
+function playFinish(win){ if (win){ playHorn(); setTimeout(() => playCrowd(true), 200); setTimeout(() => playHowl(), 800); setTimeout(() => playCrowd(true), 1500); } else { playCrowd(false); } }
+function pdSpawnParticles(){
+  const c = document.getElementById('pd-particles'); if (!c) return;
+  c.innerHTML = '';
+  const cols = ['#FAC775','#f0ede6','#6dbf6d','#7aacf0','#e0a0e0'];
+  for (let i = 0; i < 60; i++){
+    const p = document.createElement('div'); p.className = 'pt';
+    const sz = Math.random() * 8 + 4;
+    p.style.cssText = `width:${sz}px;height:${sz}px;background:${cols[Math.floor(Math.random()*cols.length)]};left:${Math.random()*100}%;top:${-20+Math.random()*10}px;animation-duration:${2+Math.random()*3}s;animation-delay:${Math.random()*2}s;opacity:${.5+Math.random()*.5};`;
+    c.appendChild(p);
+  }
+}
+/* — the finish-call pools (the r001 LRF's, verbatim; shuffle-bag rotation) — */
+const PD_FCALLS = {finish_first:["THE RACE IS WON — {party} crosses the finish line in Cornell and THIRTY TEAMS of racers have their answer — Vash's dire wolves, the reason the quotes exist in this race's title, have brought their party home FIRST. The crowd. Is. GONE.","{party} across the line — FIRST — the wolves are howling, Cornell is howling — Corben Vash standing on the runners with that expression that isn't quite a smile but is the closest thing to one I have ever seen on that man.","AND THAT IS THE FINISH — {party} wins the Dragonspine Mountains 'Dog' Sled Race — ten thousand gold pieces, the bonus prize, and the absolute respect of every team on this mountain."],finish_not_first:["{party} crosses the finish line in Cornell — rank {rank} of thirty — the Dragonspine is behind them, Vash's wolves still running strong, and whatever this mountain asked of them they answered it. That is not nothing. That is never nothing.","{party} finishes — rank {rank} — the mountain is crossed, the race is run, and Vash's dire wolves have delivered them to Cornell in one piece. The prize goes elsewhere this year. The story doesn't.","Across the line for {party} — {rank} of thirty — Vash eases the wolves to a walk, the first time in five days, and they look back at the mountain like they're already thinking about next year."],finish_last:["{party} crosses the finish line — last across, but ACROSS — the Dragonspine Mountain took everything it had and they are still here. Vash nods once. The wolves are tired. Everyone is proud. The standings don't capture what this was.","Last across the line in Cornell — but the line is crossed — {party} and Vash's wolves completing the Dragonspine 'Dog' Sled Race and the crowd gives them the applause that isn't about position.","The final team in — {party} — and Cornell cheers for them the way Cornell cheers for the ones who made it when making it wasn't certain. Vash doesn't acknowledge the crowd. Tusk does. Tusk always does."]};
+const _pdFr = {};
+function _pdShuf(a){ const b = [...a]; for (let i = b.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; }
+function getFCall(cat, subs = {}){
+  const p = PD_FCALLS[cat]; if (!p) return '';
+  if (!_pdFr[cat]) _pdFr[cat] = {q: _pdShuf([...p]), i: 0};
+  const st = _pdFr[cat];
+  if (st.i >= st.q.length){ st.q = _pdShuf([...p]); st.i = 0; }
+  let t = st.q[st.i++];
+  Object.entries(subs).forEach(([k, v]) => { t = t.replaceAll(`{${k}}`, v); });
+  return t;
+}
+function pdTicker(p, rows){
+  /* v214: writes the STATIC bottom ticker and returns nothing to inline — see the CSS note */
+  let tc;
+  if (!p.started) tc = 'The Dragonspine Mountains "Dog" Sled Race — Cornell Scrying Broadcast · Thirty teams gather at Zethel — the scryers are standing by · May the fastest wolves win';
+  else {
+    const top3 = (rows || []).slice(0, 3).map(r => r.name).join(' · ');
+    const stone = p.stone ? `${p.partyName || 'The sled'} CISF active` : `${p.partyName || 'The sled'} CISF dark — the scryers have lost the sympathetic lock`;
+    tc = p.finished ? `The race is run${top3 ? ' · The podium: ' + top3 : ''} · ${stone}`
+       : `Day ${p.day} of 5 · Leading: ${top3} · ${(rows || []).length} sleds in the field · ${stone}`;
+  }
+  const item = `<span class="ti">${esc(tc)}</span><span class="tsep">✦</span>`;
+  const bar = document.getElementById('race-ticker'), tk = document.getElementById('race-ticker-track');
+  if (bar && tk){ const html = item + item + item + item; if (tk.innerHTML !== html) tk.innerHTML = html; bar.classList.add('visible'); }
+  return '';
+}
+function pdTickerHide(){ const bar = document.getElementById('race-ticker'); if (bar) bar.classList.remove('visible'); }
+function renderRace(p){
+  pdRace.last = p;
+  document.body.style.background = 'radial-gradient(120% 90% at 50% 0%, #131a2a 0%, var(--ink) 65%)';
+  if (!p.finished){ pdRace.dismissed = false; pdRace.finishPlayed = false; }
+  const ctl = `<div class="bc-ctl"><button onclick="event.stopPropagation();pdToggleMute()" title="${pdMuted() ? 'Sound the finish calls' : 'Mute the finish calls'}">${pdMuted() ? '🔇' : '🔊'}</button><button onclick="event.stopPropagation();pdRaceToggleBooth()" title="${pdRace.booth ? 'Full leaderboard' : 'Announcer view'}">⇄</button><button onclick="event.stopPropagation();pdRaceToggleFS()" title="Fullscreen">⛶</button></div>`;
+  const head = `${ctl}
+    <div class="bc-kick">Cornell Scrying Broadcast</div>
+    <div class="bc-title">The Dragonspine Mountains "Dog" Sled Race</div>`;
+  if (!p.started){
+    show(`<div id="pd-race">${head}
+      <div class="bc-wait"><div class="w1">The field forms at Zethel</div>
+      <div class="w2">Awaiting the sympathetic lock — the scryers are standing by</div></div>${pdTicker(p, null)}</div>`);
+    return;
+  }
+  const rows = p.standings || [];
+  const party = rows.find(r => r.k === 'party') || null;
+  const partyRank = rows.findIndex(r => r.k === 'party') + 1;
+  const pips = [0, 1, 2].map(i => `<span class="bc-pip ${i < (p.dec || 0) ? 'on' : ''}"></span>`).join('');
+  const runLbl = party ? (party.st === 'damaged' ? ['r', 'Runners damaged'] : party.st === 'stressed' ? ['y', 'Runners stressed'] : ['g', 'Runners intact']) : null;
+  const meta = `<div class="bc-meta">
+    <span>Day <b>${esc(String(p.day))}</b> of 5</span><span>${pips}</span>
+    ${(p.tier && p.tier > 1) ? `<span class="bc-tier" title="the league they race in">TIER ${['', 'I', 'II', 'III', 'IV'][p.tier] || 'I'}</span>` : ''}
+    ${(p.year && p.year > 1) ? `<span class="bc-tier">${p.inv ? "THE CHAMPIONS' INVITATIONAL · " : ''}YEAR ${p.year}</span>` : ''}
+    ${p.champ ? `<span class="bc-tier" title="the reigning champions of the Dragonspine">🏆 ${esc((p.titleName || 'DEFENDING CHAMPIONS').toUpperCase())}</span>` : ''}
+    ${runLbl ? `<span class="bc-run"><span class="rdot ${runLbl[0]}"></span>${runLbl[1]}</span><span>fast ×<b>${p.cf || 0}</b> / 3</span>` : ''}
+    <span class="bc-gem ${p.stone ? '' : 'off'}" title="the scrying stone">💎${p.stone ? '' : ' <span style="color:#777;font-size:.85em">lock severed</span>'}</span></div>`
+    + (party && party.st !== 'intact' ? (party.st === 'stressed'
+        ? `<div class="bc-alert y"><span>⚠</span><span><b>Runners stressed</b> — the next Fast leg checks the runners at disadvantage</span></div>`
+        : `<div class="bc-alert r pulse"><span>🔴</span><span><b>Runners damaged — repair needed</b> — the sled must stop to mend (−2 positions)</span></div>`) : '')
+    + (p.hint ? `<div class="bc-hint">${esc(p.hintLead || 'Corben says,')} "${esc(p.hint)}"</div>` : '')
+    + ((p.crew && p.crew.length) ? `<div class="bc-crew">${esc(p.partyName || 'The sled')} — ${p.crew.map(n => esc(n)).join(' · ')}</div>` : '')
+    + (p.bet ? `<div class="bc-bet"><span class="bl">◆ The betting window is OPEN</span>${(p.betOdds || []).length ? `<span class="bo">${p.betOdds.map(x => esc(x.l) + ' <b>' + esc(x.o) + '</b>').join(' · ')}</span>` : ''}<span class="bl">◆</span></div>` : '');
+  if (p.finished && !pdRace.dismissed){
+    const winner = rows.length ? (p.winnerKey ? rows.find(r => r.k === p.winnerKey) : rows[0]) : null;
+    const partyWon = winner && winner.k === 'party';
+    if (!pdRace.finishPlayed){ pdRace.finishPlayed = true; playFinish(!!partyWon); }
+    const isLast = partyRank === rows.length && rows.length > 0;
+    const call = partyWon ? getFCall('finish_first', {party: p.partyName || 'The party'})
+      : getFCall(isLast ? 'finish_last' : 'finish_not_first', {party: p.partyName || 'The party', rank: partyRank});
+    const standings = rows.slice(0, 10).map((r, i) => `<div class="srow"><span class="sr">${i + 1}</span><span class="sn${r.k === 'party' ? ' party' : ''}">${esc(r.name)}${r.k === 'party' ? ' ◀' : ''}</span><span class="ss">${r.score}</span></div>`).join('')
+      + (rows.length > 10 ? `<div class="smore">+${rows.length - 10} more — tap anywhere for the full board</div>` : '');
+    show(`<div id="pd-race" class="fin ${partyWon ? 'win' : 'lose'}" onclick="pdRaceDismiss()">${head}
+      ${partyWon ? '<div class="bc-particles" id="pd-particles"></div>' : ''}
+      <div class="bc-splash">
+        <div class="tro">${partyWon ? '🏆' : (isLast ? '🏁' : '#' + partyRank)}</div>
+        <div class="big">${partyWon ? 'VICTORY' : (isLast ? 'RACE COMPLETE' : 'THE RACE IS RUN')}</div>
+        <div class="who">${esc(winner ? winner.name : '')}${partyWon ? '' : ' takes the Dragonspine'}</div>
+        ${partyRank ? `<div class="sub">${esc(p.partyName || 'The party')} — rank ${partyRank} of ${rows.length}</div>` : ''}
+        ${partyWon ? `<div class="bc-wolves">${['Fenra','Greyback','Tusk','Shadowfoot','Blizzard','Runt'].map(w => `<span>${w}</span>`).join('')}</div>` : ''}
+        <div class="bc-call">${esc(call)}</div>
+        <div class="bc-standings">${standings}</div>
+        <div class="bc-guide">Corben Vash — Guide · Cornell Finish Line</div>
+        <div class="bc-dismiss">tap anywhere for the full board</div>
+      </div>${pdTicker(p, rows)}</div>`);
+    if (partyWon) pdSpawnParticles();
+    return;
+  }
+  const chip = r => r.st === 'stressed' ? ' <span class="rst y">⚠</span>' : r.st === 'damaged' ? ' <span class="rst r">🔴</span>' : '';
+  const mv = r => r.mv > 0 ? ` <span class="mv up">▲${r.mv}</span>` : r.mv < 0 ? ` <span class="mv dn">▼${-r.mv}</span>` : '';
+  const flash = r => r.jb ? ' fb' : r.mv > 0 ? ' fu' : r.mv < 0 ? ' fd' : '';
+  show(`<div id="pd-race">${head}${meta}
+    <div class="bc-main">
+      <div class="bc-board${pdRace.booth ? '' : ' wide'}">
+        <div class="bc-pod">${rows.slice(0, 3).map((r, i) => `
+          <div class="p" ${r.k === 'party' ? 'style="border-color:var(--gold)"' : ''}><div class="rk">${i + 1}</div><div class="nm">${esc(r.name)}${r.k === 'party' ? ' 🐺' : ''}</div><div class="sc">${r.score}</div></div>`).join('')}
+        </div>
+        <div class="bc-rows">${rows.map((r, i) => `
+          <div class="bc-row${r.k === 'party' ? ' party' : ''}${flash(r)}">
+            <span class="rk">${i + 1}</span>
+            <span class="nm">${esc(r.name)}${r.k === 'party' ? ' 🐺' : ''}${r.b ? ' ⚔' : ''}${chip(r)}${mv(r)}</span>
+            <span class="sc">${r.score}</span>
+          </div>`).join('')}
+        </div>
+      </div>
+      ${pdRace.booth ? `<div class="bc-booth">
+        <div class="bh">The booth — Voss &amp; Tan</div>
+        <div class="bc-ann">${(p.ann || []).map((a, ai) => { const w = a.who || (ai % 2 ? 'Tan' : 'Voss'); return `
+          <div class="a ${esc(a.type || 'neutral')}"><span class="who ${w === 'Tan' ? 'tan' : 'voss'}">${esc(w)}:</span>${esc(String(a.text || '').replace(/<[^>]*>/g, ''))}</div>`; }).join('') || '<div class="a">The scryers are quiet. The mountain is not.</div>'}
+        </div>
+      </div>` : ''}
+    </div>${p.finished ? `<div class="bc-refin" onclick="pdRace.dismissed = false; renderRace(pdRace.last)">🏆 back to the finish</div>` : ''}${pdTicker(p, rows)}</div>`);
+}
+
+/* — the story strip (v209 Piece 9b): the SP image push, an overlay with its own countdown — */
+let _ssTimer = null, _ssEnd = null, _ssDur = 60;
+function showStory(p){
+  const strip = document.getElementById('story-strip'); if (!strip) return;
+  const rawImg = (p.image || '').trim();
+  const imgHost = document.getElementById('ss-img');
+  if (rawImg){
+    strip.classList.add('has-image');
+    imgHost.innerHTML = `<img src="${esc(resolveImageSrc(rawImg))}" alt="${esc(p.title || '')}" onerror="this.closest('.story-strip').classList.remove('has-image');this.parentElement.innerHTML='';">`;
+  } else {
+    strip.classList.remove('has-image');
+    imgHost.innerHTML = '';
+  }
+  document.getElementById('ss-title').textContent = p.title || '';
+  document.getElementById('ss-flavor').textContent = p.flavor || '';
+  strip.classList.add('visible');
+  _ssDur = p.duration || 60;
+  _ssEnd = Date.now() + _ssDur * 1000;
+  if (_ssTimer) clearInterval(_ssTimer);
+  _ssTimer = setInterval(() => {
+    const rem = Math.max(0, (_ssEnd - Date.now()) / 1000);
+    const fill = document.getElementById('ss-fill');
+    const timeEl = document.getElementById('ss-time');
+    if (fill) fill.style.width = Math.round((rem / _ssDur) * 100) + '%';
+    if (timeEl){
+      const mn = Math.floor(rem / 60), sc2 = Math.floor(rem % 60);
+      timeEl.textContent = mn > 0 ? mn + 'm ' + String(sc2).padStart(2, '0') + 's' : sc2 + 's';
+    }
+    if (rem <= 0) hideStory();
+  }, 200);
+}
+function hideStory(){
+  const strip = document.getElementById('story-strip');
+  if (strip){ strip.classList.remove('visible'); strip.classList.remove('has-image'); }
+  if (_ssTimer){ clearInterval(_ssTimer); _ssTimer = null; }
+  _ssEnd = null;
+}
+
+function renderTree(p){
+  __lastTree = p;
+  const cm = OSD_SCENES[p.sc] || OSD_SCENES['6.4'];
+  const nw = p.nw || cm.cols, nh = p.nh || cm.rows_n, x0 = p.x0 || 0, y0 = p.y0 || 0;
+  document.body.style.background = 'radial-gradient(120% 90% at 50% 0%, #2a2010 0%, #0d0906 65%)';
+  const title = cm.kind === 'spiral' ? 'Race up the Spiral' : 'The Heart of Oospufmorn';
+  const sub = cm.kind === 'spiral'
+    ? ('the trunk stair of the sacred tree · ' + (p.layerLabel || '') + ' · no outside rail — an open drop')
+    : 'the platform at the crown · the ring is fifteen feet wide · every round is the clock';
+  show(`<div style="width:96vw;text-align:center">
+    <div style="font-family:var(--ui);font-size:clamp(11px,1.4vw,16px);letter-spacing:.34em;text-transform:uppercase;color:#d9b96a">The Battle for Oospufmorn</div>
+    <h1 style="font-size:clamp(20px,3vw,38px);color:var(--gold);margin-top:6px">${title}</h1>
+    <div style="margin-top:8px;display:inline-block;border:1px solid #4a3f28;border-radius:6px;background:#14100a;padding:6px;box-shadow:0 12px 60px rgba(0,0,0,.6)">
+      <canvas id="pd-tree"></canvas>
+    </div>
+    <div style="font-family:var(--ui);font-size:clamp(10px,1.2vw,14px);letter-spacing:.14em;color:#8d8776;margin-top:10px">${sub}</div>
+  </div>`);
+  const cv = document.getElementById('pd-tree'); if (!cv) return;
+  const cell = Math.max(5, Math.floor(Math.min((window.innerWidth * 0.92) / nw, (window.innerHeight * 0.68) / nh)));
+  const W = nw * cell, H = nh * cell;
+  cv.width = W; cv.height = H;
+  const g = cv.getContext('2d');
+  g.save();
+  g.translate(-x0 * cell, -y0 * cell);
+  const CX = cm.cx * cell, CY = cm.cy * cell;
+  g.fillStyle = '#efe7d2'; g.fillRect(x0 * cell, y0 * cell, W, H);
+  if (cm.kind === 'spiral'){
+    const ss = osdStairSet(cm);
+    ss.stair.forEach(k => { const [x, y] = k.split(',').map(Number); g.fillStyle = '#cdb379'; g.fillRect(x * cell, y * cell, cell, cell); });
+    ss.wedge.forEach(k => { const [x, y] = k.split(',').map(Number); g.fillStyle = '#e8dfc6'; g.fillRect(x * cell, y * cell, cell, cell); });
+  } else {
+    for (let y = 0; y < cm.rows_n; y++) for (let x = 0; x < cm.cols; x++){
+      const r = osdCellR(cm, x, y);
+      if (r < cm.trunkR || r >= cm.ringR) continue;
+      g.fillStyle = osdInWedge(cm, x, y) ? '#e8dfc6' : '#cdb379';
+      g.fillRect(x * cell, y * cell, cell, cell);
+    }
+  }
+  g.strokeStyle = 'rgba(90,75,50,.22)'; g.lineWidth = 1; g.beginPath();
+  for (let x = x0; x <= x0 + nw; x++){ g.moveTo(x * cell + .5, y0 * cell); g.lineTo(x * cell + .5, (y0 + nh) * cell); }
+  for (let y = y0; y <= y0 + nh; y++){ g.moveTo(x0 * cell, y * cell + .5); g.lineTo((x0 + nw) * cell, y * cell + .5); }
+  g.stroke();
+  if (cm.kind !== 'spiral'){ g.strokeStyle = 'rgba(90,70,45,.7)'; g.lineWidth = 2; g.beginPath(); g.arc(CX, CY, cm.ringR * cell, 0, 7); g.stroke(); }
+  g.fillStyle = '#5d4630'; g.beginPath(); g.arc(CX, CY, cm.trunkR * cell, 0, 7); g.fill();
+  g.strokeStyle = '#3f2f20'; g.lineWidth = 2.5; g.beginPath(); g.arc(CX, CY, cm.trunkR * cell, 0, 7); g.stroke();
+  g.strokeStyle = 'rgba(255,240,220,.08)'; g.lineWidth = 1;
+  [0.8, 0.6, 0.4, 0.22].forEach(f => { g.beginPath(); g.arc(CX, CY, cm.trunkR * f * cell, 0, 7); g.stroke(); });
+  g.fillStyle = 'rgba(240,228,205,.85)'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.font = 'bold ' + Math.round(cell * 0.85) + 'px serif'; g.fillText(String(p.tree || 'Oospufmorn').toUpperCase(), CX, CY - cell * 0.55);   /* v235: the platform is one structure mounted at two trees — the trunk carries the name the DM's payload gives it */
+  g.font = Math.round(cell * 0.5) + 'px serif'; g.fillStyle = 'rgba(240,228,205,.55)'; g.fillText('trunk — impassable', CX, CY + cell * 0.55);
+  if (cm.rail){
+    g.strokeStyle = '#2c2318'; g.lineWidth = 2.5;
+    for (let a = 0; a < 360; a += 5){
+      if (cm.wedge && a >= cm.wedge.a0 - 3 && a <= cm.wedge.a1 + 3) continue;
+      const r0 = cm.ringR * cell + 1, r1 = cm.ringR * cell + cell * 0.32;
+      g.beginPath(); g.moveTo(CX + Math.cos(osdRad(a)) * r0, CY + Math.sin(osdRad(a)) * r0);
+      g.lineTo(CX + Math.cos(osdRad(a)) * r1, CY + Math.sin(osdRad(a)) * r1); g.stroke();
+    }
+  } else {
+    g.strokeStyle = 'rgba(160,62,62,.55)'; g.lineWidth = 1.5; g.setLineDash([5, 4]);
+    g.beginPath(); g.arc(CX, CY, cm.ringR * cell + 2, 0, 7); g.stroke(); g.setLineDash([]);
+  }
+  if (cm.seamA != null){
+    const a = osdRad(cm.seamA);
+    g.strokeStyle = '#2c2318'; g.lineWidth = 3;
+    g.beginPath(); g.moveTo(CX + Math.cos(a) * cm.trunkR * cell, CY + Math.sin(a) * cm.trunkR * cell);
+    g.lineTo(CX + Math.cos(a) * (cm.ringR * cell + cell * 0.3), CY + Math.sin(a) * (cm.ringR * cell + cell * 0.3)); g.stroke();
+  }
+  const ep = osdAngPos(cm, cm.entry.a, cm.entry.r);
+  const sx = (ep.x + 0.5) * cell, sy = (ep.y + 0.5) * cell;
+  g.fillStyle = '#d9a83c'; g.strokeStyle = '#6d5318'; g.lineWidth = 1;
+  g.beginPath();
+  for (let i = 0; i < 10; i++){ const a = -Math.PI / 2 + i * Math.PI / 5, rr = (i % 2 ? 0.22 : 0.5) * cell; const px = sx + Math.cos(a) * rr, py = sy + Math.sin(a) * rr; i ? g.lineTo(px, py) : g.moveTo(px, py); }
+  g.closePath(); g.fill(); g.stroke();
+  /* the Heartbore + the circle — drawn ONLY when the DM has revealed them (the payload flags).
+     p.bore is the opened STAGE (1–3): each opening is walkable heartwood floor inside the trunk. */
+  if (cm.bore && p.bore){
+    const stage = Math.max(1, Math.min(p.bore, cm.bore.r.length));
+    const b = osdBoreC(cm, stage);
+    for (let y = 0; y < cm.rows_n; y++) for (let x = 0; x < cm.cols; x++){
+      if (osdCellR(cm, x, y) >= cm.trunkR) continue;
+      if (!osdInBore(cm, stage, x, y)) continue;
+      g.fillStyle = '#b89a67'; g.fillRect(x * cell, y * cell, cell, cell);
+      g.strokeStyle = 'rgba(90,75,50,.3)'; g.lineWidth = 1; g.strokeRect(x * cell + .5, y * cell + .5, cell - 1, cell - 1);
+    }
+    g.strokeStyle = '#4a1c10'; g.lineWidth = 3; g.setLineDash([7, 4]);
+    g.beginPath(); g.arc(b.x * cell, b.y * cell, b.r * cell, 0, 7); g.stroke(); g.setLineDash([]);
+    g.strokeStyle = 'rgba(122,43,26,.5)'; g.lineWidth = 6;
+    g.beginPath(); g.arc(b.x * cell, b.y * cell, b.r * cell + 4, 0, 7); g.stroke();
+  }
+  if (cm.circle && p.circle){
+    const cc = osdAngPos(cm, cm.circle.a, cm.circle.r);
+    const px = (cc.x + 0.5) * cell, py = (cc.y + 0.5) * cell, rr = cm.circle.rad * cell;
+    g.strokeStyle = '#1560c0'; g.lineWidth = 2.5; g.beginPath(); g.arc(px, py, rr, 0, 7); g.stroke();
+    g.setLineDash([3, 3]); g.lineWidth = 1.5; g.beginPath(); g.arc(px, py, rr * 0.68, 0, 7); g.stroke(); g.setLineDash([]);
+    g.strokeStyle = 'rgba(21,96,192,.7)'; g.lineWidth = 1;
+    for (let i = 0; i < 12; i++){ const a = i * Math.PI / 6; g.beginPath(); g.moveTo(px + Math.cos(a) * rr * 0.72, py + Math.sin(a) * rr * 0.72); g.lineTo(px + Math.cos(a) * rr * 0.95, py + Math.sin(a) * rr * 0.95); g.stroke(); }
+  }
+  g.restore();
+  /* window-relative dynamics */
+  (p.reach || []).forEach(r => {
+    g.fillStyle = 'rgba(150,86,224,.28)'; g.fillRect(r.x * cell + 1, r.y * cell + 1, cell - 2, cell - 2);
+    g.strokeStyle = 'rgba(150,86,224,.6)'; g.lineWidth = 1; g.setLineDash([3, 2]); g.strokeRect(r.x * cell + 1.5, r.y * cell + 1.5, cell - 3, cell - 3); g.setLineDash([]);
+  });
+  (p.foes || []).forEach(e => {
+    const half = pdSz(e) / 2;
+    const px = (e.x + half) * cell, py = (e.y + half) * cell, rad = cell * (pdSz(e) >= 2 ? 0.4 * pdSz(e) : 0.36);
+    if (e.dead){
+      g.fillStyle = 'rgba(90,90,96,.75)'; g.beginPath(); g.arc(px, py, rad, 0, 7); g.fill();
+      g.fillStyle = '#c8c8cc'; g.font = Math.round(cell * 0.5) + 'px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('☠', px, py + 0.5);
+      return;
+    }
+    g.fillStyle = e.t === 'glab' ? '#1a1a20' : e.t === 'mage' ? '#6a3fa0' : e.t === 'swarm' ? '#8a4a1a' : e.t === 'fan' ? '#8a2b2b' : '#b23434';
+    g.beginPath(); g.arc(px, py, rad, 0, 7); g.fill();
+    if (e.t === 'glab'){ g.strokeStyle = '#b266f7'; g.lineWidth = 2; g.beginPath(); g.arc(px, py, rad, 0, 7); g.stroke(); }
+    g.fillStyle = '#f5e9dc'; g.font = 'bold ' + Math.round(cell * (pdSz(e) >= 2 ? 0.5 : 0.34)) + 'px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText(e.n || '', px, py + 0.5);
+    if (typeof e.f === 'number') osdFlyBadge(g, cell, px, py - rad, e.f);
+    pdSt8Badge(g, cell, px, py + rad, e.s8);
+  });
+  (p.tokens || []).forEach(t => {
+    const px = t.x * cell, py = t.y * cell, sd = pdSz(t) * cell;
+    g.fillStyle = t.d ? '#666' : (t.c || '#e0b64a');
+    g.beginPath(); g.arc(px + sd / 2, py + sd / 2, sd * 0.4, 0, 7); g.fill();
+    g.strokeStyle = 'rgba(0,0,0,.5)'; g.lineWidth = 1; g.beginPath(); g.arc(px + sd / 2, py + sd / 2, sd * 0.4, 0, 7); g.stroke();
+    g.fillStyle = '#14161c'; g.font = 'bold ' + Math.round(Math.min(sd * 0.42, cell * 0.5)) + 'px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText(t.n || '', px + sd / 2, py + sd / 2 + 0.5);
+    if (t.d){ g.strokeStyle = '#d98079'; g.lineWidth = 2; g.beginPath(); g.moveTo(px + 3, py + 3); g.lineTo(px + cell - 3, py + cell - 3); g.moveTo(px + cell - 3, py + 3); g.lineTo(px + 3, py + cell - 3); g.stroke(); }
+    if (t.k){ g.strokeStyle = '#1560c0'; g.lineWidth = 2.5; g.beginPath(); g.arc(px + cell / 2, py + cell / 2, cell * 0.52, 0, 7); g.stroke(); }
+    if (typeof t.f === 'number' && !t.d) osdFlyBadge(g, cell, px + cell / 2, py, t.f);
+    pdSt8Badge(g, cell, px + cell / 2, py + cell, t.s8);
+  });
+}
+let __lastTree = null;
+window.addEventListener('resize', () => { if (__lastTree) renderTree(__lastTree); });
+
+/* ---- The Drowned Temple — art-backed dive map (BL-006) ---- */
+let __lastDive = null;
+const __pdDiveImg = {};
+function pdDiveImage(src){
+  const s = resolveImageSrc(src || ''); if (!s) return null;
+  if (!__pdDiveImg[s]){ const im = new Image(); im.__ready = false; im.onload = () => { im.__ready = true; if (__lastDive) renderDive(__lastDive); }; im.src = s; __pdDiveImg[s] = im; }
+  return __pdDiveImg[s];
+}
+function renderDive(p){
+  __lastDive = p; __lastBowl = null;
+  const nw = p.nw || p.cols || 24, nh = p.nh || p.rows || 24;
+  const cols = p.cols || nw, rows = p.rows || nh, x0 = p.x0 || 0, y0 = p.y0 || 0;
+  document.body.style.background = 'radial-gradient(120% 90% at 50% 0%, #0d2733 0%, #030910 70%)';
+  show(`<div style="width:96vw;text-align:center">
+    <div style="font-family:var(--ui);font-size:clamp(11px,1.4vw,16px);letter-spacing:.34em;text-transform:uppercase;color:#7fc0d8">The Drowned Temple</div>
+    <div style="margin-top:10px;display:inline-block;border:1px solid #26424f;border-radius:6px;background:#04101a;padding:6px;box-shadow:0 12px 60px rgba(0,0,0,.6)">
+      <canvas id="pd-dive"></canvas>
+    </div>
+    <div style="font-family:var(--ui);font-size:clamp(10px,1.2vw,14px);letter-spacing:.14em;color:#6d8776;margin-top:10px">Dead center of the Twins Channel · four moons of stone keep the circle · the deep keeps its secret</div>
+  </div>`);
+  const cv = document.getElementById('pd-dive'); if (!cv) return;
+  const cell = Math.max(6, Math.floor(Math.min((window.innerWidth * 0.92) / nw, (window.innerHeight * 0.70) / nh)));
+  const W = nw * cell, H = nh * cell;
+  cv.width = W; cv.height = H;
+  const g = cv.getContext('2d');
+  g.fillStyle = '#08131c'; g.fillRect(0, 0, W, H);
+  const im = pdDiveImage(p.img);
+  if (im && im.__ready){
+    const iw = im.naturalWidth || im.width, ih = im.naturalHeight || im.height;
+    const sx = (x0 / cols) * iw, sy = (y0 / rows) * ih, sw = (nw / cols) * iw, sh = (nh / rows) * ih;
+    try { g.drawImage(im, sx, sy, sw, sh, 0, 0, W, H); } catch(e){}
+  }
+  g.strokeStyle = 'rgba(180,205,215,.14)'; g.lineWidth = 1; g.beginPath();
+  for (let x = 0; x <= nw; x++){ g.moveTo(x * cell + .5, 0); g.lineTo(x * cell + .5, H); }
+  for (let y = 0; y <= nh; y++){ g.moveTo(0, y * cell + .5); g.lineTo(W, y * cell + .5); }
+  g.stroke();
+  (p.reach || []).forEach(c => { g.fillStyle = 'rgba(150,86,224,.24)'; g.fillRect(c.x * cell + 1, c.y * cell + 1, cell - 2, cell - 2); g.strokeStyle = 'rgba(150,86,224,.55)'; g.lineWidth = 1; g.setLineDash([3, 2]); g.strokeRect(c.x * cell + 1.5, c.y * cell + 1.5, cell - 3, cell - 3); g.setLineDash([]); });
+  (p.reachSwim || []).forEach(c => { g.fillStyle = 'rgba(64,196,180,.24)'; g.fillRect(c.x * cell + 1, c.y * cell + 1, cell - 2, cell - 2); g.strokeStyle = 'rgba(64,196,180,.6)'; g.lineWidth = 1; g.setLineDash([2, 3]); g.strokeRect(c.x * cell + 1.5, c.y * cell + 1.5, cell - 3, cell - 3); g.setLineDash([]); });
+  (p.enemies || []).forEach(e => {
+    const s = pdSz(e) * cell, x = e.x * cell, y = e.y * cell, mx = x + s / 2, my = y + s / 2, r = s / 2 - 2;
+    let fill, stroke, ink;
+    if (e.t === 'shark'){ fill = '#8fa9b8'; stroke = '#3d5766'; ink = '#0e1c24'; } else { fill = '#6fc0d8'; stroke = '#2f7f96'; ink = '#08303a'; }
+    g.beginPath(); g.arc(mx, my, r, 0, 7); g.fillStyle = e.dead ? '#8a8690' : fill; g.fill();
+    g.lineWidth = 2; g.strokeStyle = e.dead ? '#6a6670' : stroke; g.stroke();
+    g.fillStyle = e.dead ? '#e8e4ee' : ink; g.font = 'bold ' + Math.max(8, Math.floor(s * 0.3)) + 'px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText(e.n, mx, my - 3);
+    g.font = 'bold ' + Math.max(7, Math.floor(s * 0.2)) + 'px sans-serif'; g.fillText('↑' + (e.dp || 0), mx, my + s * 0.26);
+    if (e.dead){ g.strokeStyle = '#d98079'; g.lineWidth = 2; g.beginPath(); g.moveTo(mx - r * .7, my - r * .7); g.lineTo(mx + r * .7, my + r * .7); g.moveTo(mx + r * .7, my - r * .7); g.lineTo(mx - r * .7, my + r * .7); g.stroke(); }
+    pdSt8Badge(g, cell, mx, y + s, e.s8);
+  });
+  (p.tokens || []).forEach(t => {
+    const sd = pdSz(t) * cell;
+    const mx = t.x * cell + sd / 2, my = t.y * cell + sd / 2;
+    g.beginPath(); g.arc(mx, my, sd / 2 - 1, 0, 7); g.fillStyle = t.d ? '#666' : (t.c || '#e0b64a'); g.fill();
+    g.lineWidth = 2; g.strokeStyle = '#0c0c0c'; g.stroke();
+    g.fillStyle = '#111'; g.font = 'bold ' + Math.max(7, Math.floor(cell * .42)) + 'px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText((t.n || ''), mx, my - 3);
+    g.font = 'bold ' + Math.max(6, Math.floor(cell * .26)) + 'px sans-serif'; g.fillStyle = t.d ? '#eecccc' : '#0d2436'; g.fillText('↓' + (t.dp || 0), mx, my + cell * 0.24);
+    if (t.d){ g.strokeStyle = '#d98079'; g.lineWidth = 2; g.beginPath(); g.moveTo(mx - cell / 4, my - cell / 4); g.lineTo(mx + cell / 4, my + cell / 4); g.stroke(); }
+    pdSt8Badge(g, cell, mx, my + cell / 2, t.s8);
+  });
+}
+window.addEventListener('resize', () => { if (__lastDive) renderDive(__lastDive); });
+/* ---- The River Serpent — river-voyage battle map (BL-010) ---- */
+let __lastRiver = null; const __pdRvImg = {};
+function pdRvImage(src){
+  const s = resolveImageSrc(src || ''); if (!s) return null;
+  if (!__pdRvImg[s]){ const im = new Image(); im.__ready = false; im.onload = () => { im.__ready = true; if (__lastRiver) renderRiver(__lastRiver); }; im.src = s; __pdRvImg[s] = im; }
+  return __pdRvImg[s];
+}
+function renderRiver(p){
+  __lastRiver = p;
+  const cols = p.cols || 46, rows = p.rows || 14, night = !!p.night;
+  document.body.style.background = night
+    ? 'radial-gradient(120% 90% at 50% 0%, #10132a 0%, #05060f 65%)'
+    : 'radial-gradient(120% 90% at 50% 0%, #223140 0%, #0a1018 70%)';
+  show(`<div style="width:96vw;text-align:center">
+    <div style="font-family:var(--ui);font-size:clamp(11px,1.4vw,16px);letter-spacing:.34em;text-transform:uppercase;color:#c9a227">The River Serpent — Down the Trenlem</div>
+    <div style="margin-top:10px;display:inline-block;border:1px solid #4a4128;border-radius:6px;background:#0a0f14;padding:6px;box-shadow:0 12px 60px rgba(0,0,0,.6)"><canvas id="pd-river"></canvas></div>
+    <div style="font-family:var(--ui);font-size:clamp(11px,1.4vw,16px);letter-spacing:.14em;color:#c9b784;margin-top:10px">${esc(p.label || '')}${p.sub ? ' · ' + esc(p.sub) : ''}${p.deckLabel ? ' · ' + esc(p.deckLabel) : ''}</div>
+  </div>`);
+  const cv = document.getElementById('pd-river'); if (!cv) return;
+  const cell = Math.max(6, Math.floor(Math.min((window.innerWidth * 0.92) / cols, (window.innerHeight * 0.66) / rows)));
+  const W = cols * cell, H = rows * cell; cv.width = W; cv.height = H;
+  const g = cv.getContext('2d');
+  const wt = night ? ['#22343a', '#1a2a30', '#132227'] : ['#2f4a52', '#274048', '#1e343b'];
+  const gr = g.createLinearGradient(0, 0, 0, H);
+  gr.addColorStop(0, wt[0]); gr.addColorStop(.5, wt[1]); gr.addColorStop(1, wt[2]);
+  g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  const SH = {cliffs: '#8a8472', treeline: '#4a6b3c', farmland: '#a7995f', marsh: '#57663f', confluence: '#3d7a6a', twins: '#b9ad8c'};
+  (p.shorecols || []).forEach((sc, i) => {
+    const c = SH[sc.k] || '#4a6b3c';
+    g.fillStyle = c;
+    const snT = (sc.t == null ? (sc.sn == null ? 2 : sc.sn) : sc.t), snB = (sc.b == null ? 0 : sc.b);
+    if (snT) g.fillRect(i * cell, 0, cell + 1, snT * cell);
+    if (snB) g.fillRect(i * cell, (rows - snB) * cell, cell + 1, snB * cell);
+  });
+  g.strokeStyle = 'rgba(255,255,255,.06)'; g.lineWidth = 1; g.beginPath();
+  for (let x = 0; x <= cols; x++){ g.moveTo(x * cell + .5, 0); g.lineTo(x * cell + .5, H); }
+  for (let y = 0; y <= rows; y++){ g.moveTo(0, y * cell + .5); g.lineTo(W, y * cell + .5); }
+  g.stroke();
+  if (night){ g.fillStyle = 'rgba(12,16,40,.30)'; g.fillRect(0, 0, W, H); }
+  (p.reachSwim || []).forEach(c => { g.fillStyle = 'rgba(64,196,180,.22)'; g.fillRect(c.x * cell + 1, c.y * cell + 1, cell - 2, cell - 2); g.strokeStyle = 'rgba(64,196,180,.55)'; g.lineWidth = 1; g.setLineDash([2, 3]); g.strokeRect(c.x * cell + 1.5, c.y * cell + 1.5, cell - 3, cell - 3); g.setLineDash([]); });
+  (p.reach || []).forEach(c => { g.fillStyle = 'rgba(150,86,224,.24)'; g.fillRect(c.x * cell + 1, c.y * cell + 1, cell - 2, cell - 2); });
+  const sp = p.ship || {col: 17, row: 5, w: 11, h: 4};
+  const im = pdRvImage(p.deckImg);
+  if (im && im.__ready){
+    const ar = (im.naturalWidth || 1) / (im.naturalHeight || 1), dw = sp.w * cell, dh = dw / ar;
+    g.save(); if (night) g.globalAlpha = .85;
+    try { g.drawImage(im, sp.col * cell, sp.row * cell + (sp.h * cell - dh) / 2, dw, dh); } catch(e){}
+    g.restore();
+  }
+  (p.enemies || []).forEach(e => {
+    const s = pdSz(e) * cell, mx = e.x * cell + s / 2, my = e.y * cell + s / 2, r = s / 2 - 3;
+    g.beginPath(); g.arc(mx, my, r, 0, 7); g.fillStyle = e.dead ? '#6a6670' : '#7a2f27'; g.fill();
+    g.lineWidth = 2; g.strokeStyle = e.dead ? '#8a8690' : '#e6857b'; g.stroke();
+    g.fillStyle = '#f0d8d4'; g.font = 'bold ' + Math.max(8, Math.floor(s * 0.3)) + 'px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText(e.n || '', mx, my);
+    pdBadges(g, cell, mx, my - r, my + r, e);
+    if (e.dead){ g.strokeStyle = '#d98079'; g.lineWidth = 2; g.beginPath(); g.moveTo(mx - r * .7, my - r * .7); g.lineTo(mx + r * .7, my + r * .7); g.moveTo(mx + r * .7, my - r * .7); g.lineTo(mx - r * .7, my + r * .7); g.stroke(); }
+  });
+  (p.tokens || []).forEach(t => {
+    const sd = pdSz(t) * cell, mx = t.x * cell + sd / 2, my = t.y * cell + sd / 2, r = sd / 2 - 2;
+    g.beginPath(); g.arc(mx, my, r, 0, 7); g.fillStyle = t.d ? '#6a6670' : (t.type === 'ally' ? '#5d9e66' : '#e0b64a'); g.fill();
+    g.lineWidth = 2; g.strokeStyle = '#111'; g.stroke();
+    if (t.type === 'ally'){ g.strokeStyle = 'rgba(255,255,255,.85)'; g.lineWidth = 1.5; g.beginPath(); g.arc(mx, my, r - 3, 0, 7); g.stroke(); }
+    g.fillStyle = '#111'; g.font = 'bold ' + Math.max(8, Math.floor(cell * .45)) + 'px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText(t.n || '', mx, my);
+    if (t.d){ g.strokeStyle = '#d98079'; g.lineWidth = 2; g.beginPath(); g.moveTo(mx - r * .7, my - r * .7); g.lineTo(mx + r * .7, my + r * .7); g.moveTo(mx + r * .7, my - r * .7); g.lineTo(mx - r * .7, my + r * .7); g.stroke(); }
+    pdBadges(g, cell, mx, my - r, my + r, t);
+  });
+}
+window.addEventListener('resize', () => { if (__lastRiver) renderRiver(__lastRiver); });
+
+/* ---- v229 (BL-009 Piece 2) — THE WHITEBOARD BOARD ----
+   The one map whose GEOMETRY TRAVELS IN THE PAYLOAD. Every other map here mirrors by holding a
+   byte-identical copy of its config (AMD_CFG, OSD_SCENES, the rv shore table); a board is drawn by
+   the DM at the table, so there is nothing to copy — the push carries the windowed slice of the grid
+   itself (the `chasm` p.grid precedent). That makes this renderer GENERIC: it draws whatever board
+   it is handed, so the players' screen never needs another change for any board ever sketched.
+   Hidden tokens are filtered out console-side and never arrive here. */
+const WBD_T = {
+  '.': {fill: '#d9cfb4'}, 'd': {fill: '#c0a878'}, 'w': {fill: '#6f9db8'},
+  '#': {fill: '#57504a'}, 'c': {fill: '#b9a97e'}, 'x': {fill: '#191621'}
+};
+function wbdFeature(g, cell, o){
+  const px = o.x * cell, py = o.y * cell, mx = px + cell / 2, my = py + cell / 2, r = cell * 0.38;
+  g.lineWidth = Math.max(1, cell * 0.08);
+  const stroke = o.b ? '#2b2723' : '#4a4033';
+  switch (o.k){
+    case 'tree':
+      g.fillStyle = '#6b5230'; g.fillRect(mx - cell * 0.06, my, cell * 0.12, r * 0.9);
+      g.fillStyle = '#4f7a3e'; g.beginPath(); g.moveTo(mx, my - r); g.lineTo(mx + r * 0.8, my + r * 0.25); g.lineTo(mx - r * 0.8, my + r * 0.25); g.closePath(); g.fill();
+      g.strokeStyle = '#2f4d24'; g.stroke(); break;
+    case 'bush':
+      g.fillStyle = '#5c7f46'; g.beginPath();
+      g.arc(mx - r * 0.35, my + r * 0.1, r * 0.5, 0, 7); g.arc(mx + r * 0.35, my + r * 0.1, r * 0.45, 0, 7); g.arc(mx, my - r * 0.3, r * 0.52, 0, 7); g.fill();
+      g.strokeStyle = '#35502a'; g.stroke(); break;
+    case 'rock':
+      g.fillStyle = '#9a938a'; g.beginPath(); g.moveTo(mx - r * 0.7, my + r * 0.5); g.lineTo(mx - r * 0.3, my - r * 0.5); g.lineTo(mx + r * 0.45, my - r * 0.35); g.lineTo(mx + r * 0.7, my + r * 0.5); g.closePath(); g.fill();
+      g.strokeStyle = stroke; g.stroke(); break;
+    case 'boulder':
+      g.fillStyle = '#877f75'; g.beginPath(); g.arc(mx, my, r * 0.92, 0, 7); g.fill();
+      g.strokeStyle = stroke; g.stroke(); break;
+    case 'crate':
+      g.fillStyle = '#a67c4a'; g.fillRect(mx - r * 0.75, my - r * 0.75, r * 1.5, r * 1.5);
+      g.strokeStyle = stroke; g.strokeRect(mx - r * 0.75, my - r * 0.75, r * 1.5, r * 1.5);
+      g.beginPath(); g.moveTo(mx - r * 0.75, my - r * 0.75); g.lineTo(mx + r * 0.75, my + r * 0.75);
+      g.moveTo(mx + r * 0.75, my - r * 0.75); g.lineTo(mx - r * 0.75, my + r * 0.75); g.stroke(); break;
+    case 'barrel':
+      g.fillStyle = '#8f6a3e'; g.beginPath(); g.ellipse(mx, my, r * 0.62, r * 0.85, 0, 0, 7); g.fill();
+      g.strokeStyle = stroke; g.stroke(); break;
+    case 'post':
+      g.fillStyle = '#7a6242'; g.fillRect(mx - r * 0.18, my - r * 0.85, r * 0.36, r * 1.7);
+      g.strokeStyle = stroke; g.strokeRect(mx - r * 0.18, my - r * 0.85, r * 0.36, r * 1.7); break;
+    case 'door':
+      g.fillStyle = '#8a6a3b'; g.fillRect(px + cell * 0.12, my - r * 0.22, cell * 0.76, r * 0.44);
+      g.strokeStyle = stroke; g.strokeRect(px + cell * 0.12, my - r * 0.22, cell * 0.76, r * 0.44); break;
+    case 'stair':
+      g.fillStyle = '#bdae92'; g.fillRect(px + cell * 0.12, py + cell * 0.12, cell * 0.76, cell * 0.76);
+      g.strokeStyle = stroke; g.strokeRect(px + cell * 0.12, py + cell * 0.12, cell * 0.76, cell * 0.76);
+      g.beginPath();
+      for (let i = 1; i < 4; i++){ const yy = py + cell * 0.12 + (cell * 0.76) * (i / 4); g.moveTo(px + cell * 0.12, yy); g.lineTo(px + cell * 0.88, yy); }
+      g.stroke(); break;
+    case 'fire':
+      g.fillStyle = '#3a3128'; g.beginPath(); g.arc(mx, my + r * 0.45, r * 0.7, Math.PI, 0); g.fill();
+      g.fillStyle = '#e0762a'; g.beginPath(); g.moveTo(mx, my - r * 0.85); g.quadraticCurveTo(mx + r * 0.6, my, mx, my + r * 0.5); g.quadraticCurveTo(mx - r * 0.6, my, mx, my - r * 0.85); g.fill();
+      g.fillStyle = '#f0c04a'; g.beginPath(); g.moveTo(mx, my - r * 0.4); g.quadraticCurveTo(mx + r * 0.28, my + r * 0.05, mx, my + r * 0.45); g.quadraticCurveTo(mx - r * 0.28, my + r * 0.05, mx, my - r * 0.4); g.fill(); break;
+  }
+}
+function wbdUnit(g, cell, u){
+  const s = pdSz(u), px = u.x * cell, py = u.y * cell, side = s * cell;
+  const mx = px + side / 2, my = py + side / 2, r = side / 2 - Math.max(1.5, cell * 0.09);
+  const col = u.d ? '#6a6670' : (u.k === 'foe' ? '#b23434' : u.k === 'ally' ? '#5d9e66' : (u.c || '#e0b64a'));
+  g.beginPath(); g.arc(mx, my, r, 0, 7); g.fillStyle = col; g.fill();
+  g.lineWidth = Math.max(1.5, cell * 0.1); g.strokeStyle = 'rgba(10,10,14,.75)'; g.stroke();
+  if (u.k === 'ally'){ g.strokeStyle = 'rgba(255,255,255,.85)'; g.lineWidth = Math.max(1, cell * 0.06); g.beginPath(); g.arc(mx, my, r - Math.max(2, cell * 0.13), 0, 7); g.stroke(); }
+  g.fillStyle = u.d ? '#e8e4ee' : '#14161c';
+  g.font = 'bold ' + Math.round(Math.min(side * 0.42, cell * 0.5)) + 'px sans-serif';
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText(u.n || '', mx, my + 0.5);
+  if (u.d){ g.strokeStyle = '#d98079'; g.lineWidth = Math.max(2, cell * 0.12);
+    g.beginPath(); g.moveTo(mx - r * .65, my - r * .65); g.lineTo(mx + r * .65, my + r * .65);
+    g.moveTo(mx + r * .65, my - r * .65); g.lineTo(mx - r * .65, my + r * .65); g.stroke(); }
+  /* v252 (BL-026): these two badges were authored here at v229 and are the product's now */
+  pdBadges(g, cell, mx, py + cell * 0.18, py + side, u);
+}
+let __lastBoard = null;
+function renderBoard(p){
+  __lastBoard = p;
+  const nw = p.nw || 24, nh = p.nh || 18, grid = p.grid || [];
+  document.body.style.background = 'radial-gradient(120% 90% at 50% 0%, #1b2027 0%, #07090c 65%)';
+  show(`<div style="width:96vw;text-align:center">
+    <div style="font-family:var(--ui);font-size:clamp(11px,1.4vw,16px);letter-spacing:.34em;text-transform:uppercase;color:#9fc0d8">${esc(p.name || 'The field')}</div>
+    <div style="margin-top:10px;display:inline-block;border:1px solid #3d4652;border-radius:6px;background:#e6ddc6;padding:6px;box-shadow:0 12px 60px rgba(0,0,0,.6)">
+      <canvas id="pd-board"></canvas>
+    </div>
+    <div style="font-family:var(--ui);font-size:clamp(10px,1.2vw,14px);letter-spacing:.14em;color:#8d8776;margin-top:10px">Every square is five feet · the heavy rules are fifty</div>
+  </div>`);
+  const cv = document.getElementById('pd-board'); if (!cv) return;
+  const cell = Math.max(6, Math.floor(Math.min((window.innerWidth * 0.92) / nw, (window.innerHeight * 0.70) / nh)));
+  const W = nw * cell, H = nh * cell;
+  cv.width = W; cv.height = H;
+  const g = cv.getContext('2d');
+  for (let y = 0; y < nh; y++){
+    const row = grid[y] || '';
+    for (let x = 0; x < nw; x++){
+      const ch = row[x] || '.', t = WBD_T[ch] || WBD_T['.'];
+      g.fillStyle = t.fill; g.fillRect(x * cell, y * cell, cell, cell);
+      if (ch === 'd'){
+        g.fillStyle = 'rgba(70,55,28,.45)';
+        g.fillRect(x * cell + cell * 0.24, y * cell + cell * 0.24, cell * 0.14, cell * 0.14);
+        g.fillRect(x * cell + cell * 0.60, y * cell + cell * 0.56, cell * 0.14, cell * 0.14);
+      }
+      if (ch === 'w'){
+        g.strokeStyle = 'rgba(232,246,252,.42)'; g.lineWidth = 1;
+        g.beginPath(); g.moveTo(x * cell + cell * 0.16, y * cell + cell * 0.62);
+        g.quadraticCurveTo(x * cell + cell * 0.5, y * cell + cell * 0.42, x * cell + cell * 0.84, y * cell + cell * 0.62); g.stroke();
+      }
+      if (ch === 'c'){
+        g.strokeStyle = 'rgba(60,48,24,.5)'; g.lineWidth = Math.max(1, cell * 0.07); g.beginPath();
+        g.moveTo(x * cell + cell * 0.24, y * cell + cell * 0.76); g.lineTo(x * cell + cell * 0.76, y * cell + cell * 0.24); g.stroke();
+      }
+    }
+  }
+  g.strokeStyle = 'rgba(70,60,45,.20)'; g.lineWidth = 1; g.beginPath();
+  for (let x = 0; x <= nw; x++){ g.moveTo(x * cell + .5, 0); g.lineTo(x * cell + .5, H); }
+  for (let y = 0; y <= nh; y++){ g.moveTo(0, y * cell + .5); g.lineTo(W, y * cell + .5); }
+  g.stroke();
+  /* the fifty-foot rules stay anchored to the BOARD, not the window, so they never crawl as it pans */
+  const x0 = p.x0 || 0, y0 = p.y0 || 0;
+  g.strokeStyle = 'rgba(70,60,45,.42)'; g.lineWidth = 1.4; g.beginPath();
+  for (let x = 0; x <= nw; x++) if (((x + x0) % 10) === 0){ g.moveTo(x * cell + .5, 0); g.lineTo(x * cell + .5, H); }
+  for (let y = 0; y <= nh; y++) if (((y + y0) % 10) === 0){ g.moveTo(0, y * cell + .5); g.lineTo(W, y * cell + .5); }
+  g.stroke();
+  (p.feats || []).forEach(o => wbdFeature(g, cell, o));
+  (p.reach || []).forEach(c => {
+    g.fillStyle = 'rgba(150,86,224,.26)'; g.fillRect(c.x * cell + 1, c.y * cell + 1, cell - 2, cell - 2);
+    g.strokeStyle = 'rgba(150,86,224,.6)'; g.lineWidth = 1; g.setLineDash([3, 2]);
+    g.strokeRect(c.x * cell + 1.5, c.y * cell + 1.5, cell - 3, cell - 3); g.setLineDash([]);
+  });
+  (p.reachSwim || []).forEach(c => {
+    g.fillStyle = 'rgba(64,196,180,.26)'; g.fillRect(c.x * cell + 1, c.y * cell + 1, cell - 2, cell - 2);
+    g.strokeStyle = 'rgba(64,196,180,.6)'; g.lineWidth = 1; g.setLineDash([2, 3]);
+    g.strokeRect(c.x * cell + 1.5, c.y * cell + 1.5, cell - 3, cell - 3); g.setLineDash([]);
+  });
+  (p.units || []).forEach(u => wbdUnit(g, cell, u));
+}
+window.addEventListener('resize', () => { if (__lastBoard) renderBoard(__lastBoard); });
+
+let _ptTimer = null, _ptEnd = null, _ptDur = 0;
+function ptStart(secs){
+  const bar = document.getElementById('push-timer'); if (!bar) return;
+  _ptDur = secs; _ptEnd = Date.now() + secs * 1000;
+  bar.classList.add('visible');
+  if (_ptTimer) clearInterval(_ptTimer);
+  _ptTimer = setInterval(() => {
+    const rem = Math.max(0, (_ptEnd - Date.now()) / 1000);
+    const f = document.getElementById('pt-fill');
+    if (f) f.style.width = Math.round((rem / _ptDur) * 100) + '%';
+    const c = document.getElementById('pt-count');
+    if (c){ const r = Math.ceil(rem); c.textContent = r >= 60 ? Math.floor(r / 60) + 'm ' + String(r % 60).padStart(2, '0') + 's' : r + 's'; }
+    if (rem <= 0) ptHide();
+  }, 250);
+  const f = document.getElementById('pt-fill'); if (f) f.style.width = '100%';
+  const c = document.getElementById('pt-count'); if (c) c.textContent = secs >= 60 ? Math.floor(secs / 60) + 'm ' + String(secs % 60).padStart(2, '0') + 's' : secs + 's';
+}
+function ptHide(){
+  const bar = document.getElementById('push-timer'); if (bar) bar.classList.remove('visible');
+  if (_ptTimer){ clearInterval(_ptTimer); _ptTimer = null; }
+  _ptEnd = null;
+}
+function resolveImageSrc(src){
+  if (!src) return '';
+  if (/^(https?:|data:|\/)/i.test(src)) return src;
+  return src.replace(/^\.\//, '');
+}
+/* v257 (BL-028): the statically-painted idle screen gets the notice the moment
+   the script runs. The static markup above is left alone so the pre-script paint
+   is unchanged; the notice is appended rather than re-rendered, which keeps ONE
+   copy of the string in this file. */
+try { var _idle0 = document.getElementById('idle'); if (_idle0 && !_idle0.querySelector('.lic')) _idle0.insertAdjacentHTML('beforeend', LICENCE_HTML + STAMP_HTML); } catch(e){}
+
+if (chan) chan.addEventListener('message', ev => handle(ev.data));
+window.addEventListener('storage', ev => {
+  if (ev.key === 'torrentath_msg' && ev.newValue){
+    try { handle(JSON.parse(ev.newValue)); } catch(e){}
+  }
+});
+// replay last message if present (display opened after a push)
+// The players' screen always opens on the TORRENTATH home screen; the DM pushes whatever is needed.
+// Only the in-world date banner is restored on load (it sits under TORRENTATH); the map and other pushes are not auto-restored.
+try { const last = JSON.parse(localStorage.getItem('torrentath_msg') || 'null'); if (last && last.type === 'date') handle(last); } catch(e){}
+/* v239 (BL-021, the Q5 ruling): ...and the banner keeps its OWN key, so it survives a reload even
+   when the date was not the last push of all (a date, then a handout, then a reload used to lose
+   it). An OFF deletes the key, so a banner taken down never restores. The stored countdown is
+   dropped on restore — the console's timer is authoritative and will send the OFF, and a reopened
+   window must not show 60 s left when 3 remain. */
+try {
+  const db = JSON.parse(pdGet('torrentath_datebar') || 'null');
+  if (db && db.type === 'date' && !db.off) handle(Object.assign({}, db, {dateSecs: 0}));
+} catch(e){}
+</script>
+</body>
+</html>
