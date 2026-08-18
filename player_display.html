@@ -18,38 +18,17 @@ body{background:radial-gradient(120% 90% at 50% 0%, #191527 0%, var(--ink) 60%);
 .stage{height:100vh;display:flex;flex-direction:column}
 .content{flex:1;display:flex;align-items:center;justify-content:center;padding:4vh 6vw;text-align:center}
 .rule{width:min(520px,60vw);height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:22px auto}
-/* idle */
 .idle .sig{font-size:clamp(40px,7vw,88px);letter-spacing:.12em;color:var(--gold)}
 .idle .sub{font-family:var(--ui);font-size:clamp(11px,1.3vw,15px);letter-spacing:.34em;text-transform:uppercase;color:var(--muted);margin-top:10px}
-/* v257 (BL-028 Q2, ruled by silence): the attribution notice rides the IDLE
-   screen and nothing else. It is inside .idle, so it is gone the instant the
-   DM pushes anything - no state to track, no way for it to survive a push -
-   and it is pinned to the foot of the window so it never crowds the sigil.
-   Small, visible, unmissable if looked for: the idle screen is the one the
-   table stares at while everyone finds their dice. */
 .idle .lic{position:fixed;left:0;right:0;bottom:0;padding:10px 5vw 28px;
   font-family:var(--ui);font-size:clamp(8px,.78vw,10px);line-height:1.5;
   letter-spacing:.02em;text-transform:none;color:rgba(146,140,124,.62);
   max-width:none;text-align:center;pointer-events:none}
 
-/* v273 (BL-051 · rulings ③ + ④): the build stamp on the players' screen.
-   §2.2 measured `Build` at ZERO here, and the README had already told a tester
-   that the build line is the thing to quote — on the one screen that has none.
-   A fault on this screen can be a SILENCE while the console looks healthy
-   (BL-043), so the person best placed to report it was the one with nothing to
-   report with.
-   IT RIDES THE IDLE FOOT AND THAT DECISION IS NOT THIS BUILD'S. v257 wrote it
-   for the attribution notice, in this file, and gave the reason: it is gone the
-   instant the DM pushes anything, and the idle screen is the one the table
-   stares at while everyone finds their dice. The stamp gets the same treatment
-   and the same lifetime, and it is a SIBLING of .lic so the notice's own bytes
-   — asserted verbatim in two instruments — are not touched. The 12px of foot
-   padding the notice used to end in is now 28px; the stamp lives in it. */
 .idle .pdstamp{position:fixed;left:0;right:0;bottom:0;padding:0 5vw 9px;
   font-family:var(--ui);font-size:clamp(8px,.78vw,10px);line-height:1.4;
   letter-spacing:.06em;text-transform:none;color:rgba(146,140,124,.45);
   text-align:center;pointer-events:none}
-/* handout — typographic document */
 .doc{max-width:min(88vw,58ch);text-align:left}
 .doc.center{text-align:center}
 .doc h1{font-size:clamp(30px,4.6vw,60px);font-weight:600;letter-spacing:.02em;color:var(--gold);text-align:center}
@@ -70,11 +49,9 @@ body{background:radial-gradient(120% 90% at 50% 0%, #191527 0%, var(--ink) 60%);
 .doc.dropcap .body > p:first-child::first-letter{font-size:2.7em;line-height:.82;color:var(--gold);float:left;padding:.04em .1em 0 0}
 .doc .body::-webkit-scrollbar{width:6px}
 .doc .body::-webkit-scrollbar-thumb{background:#4a4128;border-radius:3px}
-/* image */
 .imgwrap{max-width:92vw;max-height:74vh;display:flex;flex-direction:column;align-items:center;gap:14px}
 .imgwrap img{max-width:92vw;max-height:68vh;border:1px solid #4a4128;border-radius:4px;box-shadow:0 12px 60px rgba(0,0,0,.6)}
 .imgwrap .cap{font-size:clamp(16px,2vw,24px);color:var(--parchment)}
-/* pit board — fight night */
 .pit{width:min(94vw,980px);text-align:center}
 .pit .kick{font-family:var(--ui);font-size:clamp(11px,1.3vw,15px);letter-spacing:.34em;text-transform:uppercase;color:var(--muted)}
 .pit .card{display:flex;align-items:center;justify-content:center;gap:3vw;margin-top:14px}
@@ -115,7 +92,6 @@ body{background:radial-gradient(120% 90% at 50% 0%, #191527 0%, var(--ink) 60%);
 .pit .beat{margin-top:12px}
 .pit .beat .bh{font-family:var(--ui);font-size:clamp(11px,1.3vw,15px);letter-spacing:.3em;color:var(--gold)}
 .pit .beat .bt2{font-size:clamp(14px,1.7vw,21px);line-height:1.5;color:var(--parchment);margin-top:2px}
-/* v56 · the midway — the carnival's shell board */
 .carn .shrow{display:flex;justify-content:center;gap:6vw;margin:38px 0 6px;align-items:flex-end}
 .carn .slot{position:relative;width:clamp(90px,13vw,150px);height:clamp(120px,17vw,190px)}
 .carn .peb{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:clamp(20px,2.8vw,30px);height:clamp(16px,2.2vw,24px);border-radius:50%;background:radial-gradient(circle at 35% 30%,#cfc4a8,#7a7060);opacity:0;box-shadow:0 2px 6px rgba(0,0,0,.5)}
@@ -130,7 +106,6 @@ body{background:radial-gradient(120% 90% at 50% 0%, #191527 0%, var(--ink) 60%);
 .carn.down .slot:nth-child(2) .shell{animation-delay:.45s}
 .carn.down .slot:nth-child(3) .shell{animation-delay:.9s}
 .carn .statwrap{margin-top:46px}
-/* v58 · the small package — the 50/50: two shells glow, one goes dark, nothing says which is which */
 .carn .slot.twoin .shell{box-shadow:0 0 0 3px var(--gold),0 0 26px rgba(201,162,39,.45),0 6px 20px rgba(0,0,0,.5)}
 .carn .slot.twoin .slab{color:var(--gold)}
 .carn .slot.out{opacity:.32}
@@ -142,16 +117,12 @@ body{background:radial-gradient(120% 90% at 50% 0%, #191527 0%, var(--ink) 60%);
 .pit .obrow .obl{color:var(--parchment)}
 .pit .obrow .obl b{color:var(--gold)}
 .pit .oboard .obn{font-family:var(--ui);font-size:clamp(10px,1.2vw,14px);letter-spacing:.18em;color:var(--muted);text-align:center;margin-top:8px}
-/* date banner */
 .datebar{padding:16px 4vw 22px;text-align:center;border-top:1px solid #3a3350;background:linear-gradient(0deg,#161226,transparent)}
 .datebar .d{font-size:clamp(20px,2.6vw,34px)}
 .datebar .d b{color:var(--gold);font-weight:600}
 .datebar .w{font-family:var(--ui);font-size:clamp(11px,1.3vw,15px);letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-top:2px}
 .datebar .w .god{color:var(--imperial)}
 .datebar .fest{display:inline-block;margin-top:8px;font-family:var(--ui);font-size:clamp(11px,1.3vw,15px);letter-spacing:.12em;color:#e6c86a;border:1px solid #8a7020;border-radius:14px;padding:3px 14px}
-/* v239 (BL-021): the banner's own stand-down countdown — drawn ON the thing that is going away,
-   so it can run alongside the bottom #push-timer bar (the mirror-return timer) instead of
-   fighting it for the one bar. */
 .dbtimer{display:flex;align-items:center;gap:10px;justify-content:center;margin:10px auto 0;max-width:min(420px,46vw)}
 .dbtimer.hidden{display:none}
 .dbtimer .dbt-track{flex:1;height:3px;background:rgba(255,255,255,.09);border-radius:3px;overflow:hidden}
@@ -164,12 +135,11 @@ body{background:radial-gradient(120% 90% at 50% 0%, #191527 0%, var(--ink) 60%);
 .fade{animation:fade .5s ease}
 @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.fade{animation:none}}
-/* v205 (BL-016 P3) — the Cornell Scrying Broadcast */
 #pd-race{width:96vw;font-family:var(--ui)}
 #pd-race .bc-kick{font-size:clamp(11px,1.3vw,15px);letter-spacing:.3em;text-transform:uppercase;color:var(--muted);text-align:center}
 #pd-race .bc-title{font-family:var(--serif);font-size:clamp(20px,3vw,38px);color:var(--gold);text-align:center;letter-spacing:.05em}
 #pd-race .bc-meta{display:flex;justify-content:center;align-items:center;gap:14px;margin-top:6px;font-size:clamp(12px,1.4vw,18px);color:var(--parchment)}
-#pd-race .bc-tier{border:1px solid var(--gold);border-radius:10px;padding:1px 10px;color:var(--gold);font-weight:700;letter-spacing:1px;font-size:.85em} /* v218 (BL-018 P1): the league pill — shown Tier II and up */
+#pd-race .bc-tier{border:1px solid var(--gold);border-radius:10px;padding:1px 10px;color:var(--gold);font-weight:700;letter-spacing:1px;font-size:.85em}
 #pd-race .bc-pip{display:inline-block;width:11px;height:11px;border-radius:50%;background:#3a3320;margin:0 2px}
 #pd-race .bc-pip.on{background:var(--gold)}
 #pd-race .bc-gem{color:#7fd0e8}.bc-gem.off{color:#555;filter:grayscale(1)}
@@ -177,7 +147,7 @@ body{background:radial-gradient(120% 90% at 50% 0%, #191527 0%, var(--ink) 60%);
 #pd-race .bc-bet{margin:8px auto 0;max-width:88vw;text-align:center;border:1px solid var(--gold);border-radius:6px;background:rgba(201,162,39,.09);padding:5px 14px;font-size:clamp(11px,1.25vw,15px);color:var(--gold);letter-spacing:.04em}
 #pd-race .bc-bet .bo{color:var(--parchment);margin:0 12px;letter-spacing:0}
 #pd-race .bc-bet .bl{opacity:.85}
-#pd-race .bc-main{display:flex;gap:2vw;margin-top:14px;align-items:stretch;justify-content:center} /* v215 (UX sweep): the booth stretches to the board */
+#pd-race .bc-main{display:flex;gap:2vw;margin-top:14px;align-items:stretch;justify-content:center}
 #pd-race .bc-board{flex:1.2;max-width:46vw}
 #pd-race .bc-pod{display:flex;gap:8px;margin-bottom:8px}
 #pd-race .bc-pod .p{flex:1;border:1px solid #4a3f2a;border-radius:6px;background:#171420;padding:8px 10px;text-align:center}
@@ -187,15 +157,15 @@ body{background:radial-gradient(120% 90% at 50% 0%, #191527 0%, var(--ink) 60%);
 #pd-race .bc-rows{border:1px solid #35304a;border-radius:6px;background:#12101a;max-height:62vh;overflow:hidden;column-count:2;column-gap:0;padding:4px 0}
 #pd-race .bc-row{display:flex;align-items:center;gap:8px;padding:3px 12px;font-size:clamp(12px,1.35vw,19px);break-inside:avoid}
 #pd-race .bc-row .rk{min-width:22px;text-align:right;color:var(--muted)}
-#pd-race .bc-row.party{background:#241f10;border-left:3px solid var(--gold);font-size:clamp(13px,1.5vw,21px);font-weight:600} /* v214: the party row carries at distance */
+#pd-race .bc-row.party{background:#241f10;border-left:3px solid var(--gold);font-size:clamp(13px,1.5vw,21px);font-weight:600}
 #pd-race .bc-row.party .nm{color:var(--gold)}
-#pd-race .bc-row .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left} /* v214: a leaderboard reads left-aligned */
+#pd-race .bc-row .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
 #pd-race .bc-row .sc{font-weight:700}
 #pd-race .mv{font-size:.8em}.mv.up{color:#7fae6a}.mv.dn{color:#e06060}
 #pd-race .rst.y{color:#e0b13e}.rst.r{color:#e06060}
 #pd-race .bc-booth{flex:1;max-width:38vw;border:1px solid #35304a;border-radius:6px;background:#12101a;padding:10px 14px;display:flex;flex-direction:column}
 #pd-race .bc-booth .bh{font-size:clamp(11px,1.2vw,14px);letter-spacing:.22em;text-transform:uppercase;color:var(--imperial)}
-#pd-race .bc-ann{margin-top:6px;font-family:var(--serif);font-size:clamp(13px,1.5vw,19px);line-height:1.5;text-align:left;flex:1} /* v214: closed captions read left-aligned */
+#pd-race .bc-ann{margin-top:6px;font-family:var(--serif);font-size:clamp(13px,1.5vw,19px);line-height:1.5;text-align:left;flex:1}
 #pd-race .bc-ann .a{padding:5px 0;border-bottom:1px solid #241f30}
 #pd-race .bc-ann .a .tm{font-family:var(--ui);font-size:.7em;color:var(--muted);margin-right:8px;letter-spacing:.1em}
 #pd-race .bc-ann .a.triumph{color:#b8d8a8}.bc-ann .a.danger{color:#e8a8a0}.bc-ann .a.bully{color:#d98079}.bc-ann .a.day-wrap{color:var(--gold)}.bc-ann .a.stone{color:#7fd0e8}
@@ -208,7 +178,6 @@ body{background:radial-gradient(120% 90% at 50% 0%, #191527 0%, var(--ink) 60%);
 #pd-race .bc-wait .w1{font-size:clamp(22px,3.4vw,44px);color:var(--gold)}
 #pd-race .bc-wait .w2{color:var(--muted);font-family:var(--ui);letter-spacing:.24em;text-transform:uppercase;font-size:clamp(11px,1.3vw,15px);margin-top:10px}
 
-/* ===== v209 (BL-016 Piece 9/10) — the broadcast at full r001 Live-Race-Feed fidelity ===== */
 #pd-race{position:relative;padding-bottom:34px}
 #pd-race .bc-ctl{position:absolute;top:0;right:0;z-index:35;display:flex;gap:6px}
 #pd-race .bc-ctl button{background:rgba(255,255,255,.05);border:1px solid #3a3350;border-radius:6px;color:#8b9db5;font-size:14px;padding:4px 10px;cursor:pointer}
@@ -221,7 +190,7 @@ body{background:radial-gradient(120% 90% at 50% 0%, #191527 0%, var(--ink) 60%);
 #pd-race .bc-alert.r{background:rgba(220,50,50,.1);border-color:rgba(220,50,50,.5);color:#e05c5c}
 #pd-race .bc-alert.pulse{animation:pdPulse 1.8s ease-in-out infinite}
 @keyframes pdPulse{0%,100%{opacity:1}50%{opacity:.5}}
-#pd-race .bc-hint{margin:8px auto 0;max-width:72vw;font-family:var(--serif);font-size:clamp(14px,1.6vw,21px);color:#cdd6e4;line-height:1.5;text-align:center} /* v214 (UAT): one flowing book sentence — no bullet, no split voice */
+#pd-race .bc-hint{margin:8px auto 0;max-width:72vw;font-family:var(--serif);font-size:clamp(14px,1.6vw,21px);color:#cdd6e4;line-height:1.5;text-align:center}
 #pd-race .bc-ann .who{font-family:var(--ui);font-size:.8em;letter-spacing:.06em;font-weight:700;margin-right:7px}
 #pd-race .bc-ann .who.voss{color:var(--gold)}
 #pd-race .bc-ann .who.tan{color:#b89aee}
@@ -232,7 +201,7 @@ body{background:radial-gradient(120% 90% at 50% 0%, #191527 0%, var(--ink) 60%);
 @keyframes pdfUp{0%{background:rgba(76,175,80,.25)}100%{background:transparent}}
 @keyframes pdfDn{0%{background:rgba(224,92,92,.2)}100%{background:transparent}}
 @keyframes pdfBully{0%{background:rgba(220,50,50,.3)}100%{background:transparent}}
-.race-ticker{position:fixed;left:0;right:0;bottom:0;padding:6px 0;border-top:1px solid #2a2440;background:rgba(10,8,18,.94);overflow:hidden;white-space:nowrap;z-index:30;display:none} /* v214: a static element — inside the view, the .fade transform captured position:fixed and stranded it mid-screen */
+.race-ticker{position:fixed;left:0;right:0;bottom:0;padding:6px 0;border-top:1px solid #2a2440;background:rgba(10,8,18,.94);overflow:hidden;white-space:nowrap;z-index:30;display:none}
 .race-ticker.visible{display:block}
 .race-ticker .tk{display:inline-block;animation:pdTick 45s linear infinite}
 .race-ticker .tk:hover{animation-play-state:paused}
@@ -261,14 +230,12 @@ body{background:radial-gradient(120% 90% at 50% 0%, #191527 0%, var(--ink) 60%);
 #pd-race .bc-particles{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:34}
 #pd-race .bc-particles .pt{position:absolute;border-radius:50%;animation:pdFall linear infinite}
 @keyframes pdFall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
-/* v212 (UAT): the bottom push-timer bar — a timed boxed push shows how long it holds before the broadcast returns */
 .push-timer{position:fixed;left:0;right:0;bottom:0;z-index:55;display:none;align-items:center;gap:10px;padding:6px 16px;background:rgba(10,8,18,.94);border-top:1px solid rgba(201,162,39,.4)}
 .push-timer.visible{display:flex}
 .push-timer .pt-count{font-family:var(--ui);font-size:clamp(11px,1.2vw,14px);color:var(--gold);min-width:56px;letter-spacing:.05em}
 .push-timer .pt-track{flex:1;height:4px;background:rgba(255,255,255,.08);border-radius:3px}
 .push-timer .pt-fill{height:100%;width:100%;background:var(--gold);border-radius:3px;transition:width .5s linear}
 .push-timer .pt-note{font-family:var(--ui);font-size:clamp(9px,1vw,12px);color:#5a6a85;letter-spacing:.08em;text-transform:uppercase}
-/* the story strip — the SP image push (v209 Piece 9b): an OVERLAY over whatever view is shown */
 .story-strip{position:fixed;left:0;right:0;bottom:0;z-index:60;display:none;flex-direction:column;background:rgba(8,6,16,.97);border-top:1px solid rgba(147,112,219,.35);box-shadow:0 -10px 50px rgba(0,0,0,.5)}
 .story-strip.visible{display:flex}
 .story-strip .ss-img{width:100%;overflow:hidden;display:none}
@@ -303,35 +270,18 @@ body{background:radial-gradient(120% 90% at 50% 0%, #191527 0%, var(--ink) 60%);
     <div class="w" id="d-week"></div>
     <div class="pips" id="d-pips"></div>
     <div><span class="fest hidden" id="d-fest"></span></div>
-    <!-- v239 (BL-021): the banner's OWN countdown. It is not the bottom #push-timer bar — that one
-         is the mirror-return timer, it only arms over a live mirror and its note reads "the
-         broadcast returns". Both can be running at once, so they are separate furniture. -->
     <div class="dbtimer hidden" id="db-timer"><div class="dbt-track"><div class="dbt-fill" id="db-fill"></div></div><span class="dbt-count" id="db-count"></span></div>
   </div>
 </div>
 <script>
 'use strict';
-/* v275 (BL-052 · ruling ⑥): the players' screen has storage too, and
-   `BETA_READINESS.md` §2.3 never counted it. `torrentath_datebar` stores a PUSH
-   PAYLOAD and replays it on reload; its shape has moved before (v239 added the
-   countdown), and a stale banner painted here is a silence the console never
-   sees — BL-043's lesson, at a saved payload.
-
-   There is no Resets page on this screen and no Restore: a refused banner simply
-   does not come back, and the DM pushes the date again. The quarantined blob goes
-   into the same `torrentath_quarantine` ledger the console reads (BL-053), so the
-   console's ↺ Resets can show it and a bug report can ask for it.
-
-   `torrentath_pd_mute` is EXEMPT and the reason ships with it: it is a device
-   preference holding one character, not campaign state, and quarantining a mute
-   would be a gate taking something away that no build can get wrong. */
 const PD_SHAPES = { 'torrentath_datebar': 1 };
 const PD_EXEMPT = {
   'torrentath_pd_mute': 'a device preference holding one character; not campaign state',
   'torrentath_msg': 'a cross-tab message bus, written and read within milliseconds',
   'torrentath_quarantine': 'the shared quarantine ledger itself (BL-053); a shape check here would quarantine the quarantine'
 };
-const PD_BUILD = 'v279';
+const PD_BUILD = 'v283';
 function pdGet(k){
   let raw; try { raw = localStorage.getItem(k); } catch(e){ return null; }
   if (raw === null || raw === undefined) return null;
@@ -350,9 +300,6 @@ function pdSet(k, s){
   } catch(e){}
 }
 function pdQuarantine(k, raw, from){
-  /* BL-053: into the ONE ledger the console reads — never a renamed key that
-     a prefix scan can trip over. This screen never restores; the DM pushes
-     the date again, and the console's ↺ Resets shows the piece for the report. */
   try {
     let led = null; try { led = JSON.parse(localStorage.getItem('torrentath_quarantine') || 'null'); } catch(e){}
     if (!led || typeof led !== 'object' || !Array.isArray(led.pieces)) led = {v: 1, seq: 0, pieces: [], collapsed: []};
@@ -370,27 +317,13 @@ const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;
 function hello(){ if (chan) chan.postMessage({type:'display-hello', ts: Date.now()}); }
 hello(); setInterval(hello, 5000);
 
-/* =====================================================================
-   v257 · BL-028 - THE ATTRIBUTION NOTICE ON THE PLAYERS' SCREEN.
-
-   VERBATIM. Wizards specifies this wording and it must not be paraphrased,
-   reflowed or shortened; the seal asserts it byte-for-byte here, in
-   campaign_console.html and in LICENSE.md at the root of the zip.
-
-   It lives in exactly one place in this file and both idle paths read it -
-   the load-time screen below and the `clear` push - so the two can never
-   drift apart. It is a LIST, and at v259 BL-030 decided NOT to add the second
-   notice it was reserved for: SRD 5.2.1's Goblin Boss turned out to be a
-   different creature from the one this product ships, so the block went
-   homebrew and the product stayed on one baseline. The list stays a list.
-   ===================================================================== */
 var LICENCE_NOTICES = [
   'This work includes material taken from the System Reference Document 5.1 ("SRD 5.1") by Wizards of the Coast LLC and available at https://dnd.wizards.com/resources/systems-reference-document. The SRD 5.1 is licensed under the Creative Commons Attribution 4.0 International License available at https://creativecommons.org/licenses/by/4.0/legalcode.'
 ];
 var LICENCE_HTML = '<div class="lic">' + LICENCE_NOTICES.map(function(t){
   return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }).join('<br>') + '</div>';
-var STAMP_HTML = '<div class="pdstamp">Build v279 · 2026-08-17 — quote this line if you report a problem</div>';
+var STAMP_HTML = '<div class="pdstamp">Build v283 · 2026-08-17 — quote this line if you report a problem</div>';
 var IDLE_HTML = '<div class="idle"><div class="sig">TORRENTATH</div><div class="rule"></div><div class="sub">The chronicle awaits</div>' + LICENCE_HTML + STAMP_HTML + '</div>';
 
 function show(html){
@@ -408,7 +341,6 @@ function fitBody(){
   }
 }
 function splitInline(pa){
-  // Break a single paragraph into lines at ascending inline enumerators (1. / 1) / (1)) and [BEAT n] markers.
   let t = pa.replace(/\s*(\[BEAT\s*\d+[^\]]*\])\s*/g, '\n$1 ');
   const re = /(^|\s)(\((\d{1,2})\)|(\d{1,2})[.)])\s+/g;
   const hits = [];
@@ -462,15 +394,11 @@ function renderRich(text){
 }
 function handle(m){
   if (!m || !m.type) return;
-  /* v209 (Piece 9b): the story strip is an OVERLAY — it rides over the current view and never replaces it */
   if (m.type === 'story'){ showStory(m.payload || {}); return; }
   if (m.type === 'story_clear'){ hideStory(); return; }
-  /* v212 (UAT): a timed boxed push carries m.showFor — run the bottom timer bar with the seconds
-     left until the broadcast returns; any other view-changing push stands it down (the date banner
-     doesn't replace the view, so it leaves a running countdown alone). */
   if (m.showFor) ptStart(m.showFor);
   else if (m.type !== 'date') ptHide();
-  if (m.type !== 'race' && m.type !== 'date') pdTickerHide(); /* v214: the bottom ticker belongs to the broadcast */
+  if (m.type !== 'race' && m.type !== 'date') pdTickerHide();
   if (m.type === 'signal'){
     const p = m.payload || {};
     const cfg = {
@@ -491,7 +419,7 @@ function handle(m){
   }
   if (m.type !== 'signal') document.body.style.background = '';
   if (m.type === 'clear'){
-    show(IDLE_HTML);   /* v257 (BL-028): one idle template, so the notice cannot drift */
+    show(IDLE_HTML);
     return;
   }
   if (m.type === 'handout'){
@@ -519,7 +447,7 @@ function handle(m){
       <div class="rule"></div>
     </div>`);
   }
-  if (m.type === 'initiative'){   /* v153 (BL-001 · piece 4b): the player-facing initiative — PC order + revealed enemy groups */
+  if (m.type === 'initiative'){
     const p = m.payload || {};
     const rows = (p.entries || []).map(e => {
       const enemy = e.kind === 'grp';
@@ -660,7 +588,6 @@ function handle(m){
       return;
     }
     if (p.kind === 'ring'){
-      /* v59 · the honest midway — the arithmetic shows when the die is known */
       const rm = p.mod ? (p.mod > 0 ? '+' + p.mod : String(p.mod)) : '';
       const rows = (p.throws || []).map(t =>
         `<div class="rr">Ring ${t.n}: ${t.die ? `d20 ${t.die}${rm} = ` : ''}${t.total} vs DC 18 — ${t.hit ? '<span class="rw">ON THE POST</span>' : 'short'}</div>`).join('');
@@ -676,7 +603,6 @@ function handle(m){
       return;
     }
     if (p.kind === 'wrestle'){
-      /* v59 · the honest midway — the arithmetic shows when the die is known */
       const wm = p.mod ? (p.mod > 0 ? '+' + p.mod : String(p.mod)) : '';
       const rows = (p.turns || []).map(t =>
         `<div class="rr">Turn ${t.n} — ${t.style === 'pin' ? 'the pin' : 'the ring-out'}: ${esc(p.player)} ${t.pdie ? `d20 ${t.pdie}${wm} = ` : ''}${t.pt} · ${esc(p.opp)} ${t.ot} — ${t.res === 'pc' ? `<span class="rw">${esc(p.player)}</span>` : t.res === 'house' ? esc(p.opp) : 'no fall'}</div>`).join('');
@@ -737,7 +663,6 @@ function handle(m){
   if (m.type === 'image'){
     const p = m.payload || {};
     const src = resolveImageSrc(p.src || '');
-    /* fogRects: normalized [x,y,w,h] covers the DM has not yet revealed */
     const covers = (p.fogRects || []).map(r =>
       `<div style="position:absolute;left:${r[0]*100}%;top:${r[1]*100}%;width:${r[2]*100}%;height:${r[3]*100}%;background:#14161c"></div>`).join('');
     show(`<div class="imgwrap"><div style="position:relative;display:inline-block;font-size:0;overflow:hidden;border-radius:4px"><img src="${esc(src)}" alt="${esc(p.caption || 'Pushed image')}">${covers}</div>${p.caption ? `<div class="cap">${esc(p.caption)}</div>` : ''}</div>`);
@@ -745,12 +670,6 @@ function handle(m){
   if (m.type === 'date'){
     const p = m.payload || {};
     const bar = document.getElementById('datebar');
-    /* v239 (BL-021): THE BANNER IS A TOGGLE NOW. Before v239 this block only ever did
-       remove('hidden') — add('hidden') for #datebar appeared nowhere in the file. 'clear' returns
-       early above, no other push type touches the bar, and the load path deliberately restores a
-       date, so once the banner was up the only way off it was reloading this window. The OFF rides
-       as a FLAG on this same push type, which is also what makes the restore gate at the foot of
-       this file replay an OFF correctly as an OFF instead of resurrecting the banner. */
     if (m.off){
       bar.classList.add('hidden');
       dbStop();
@@ -763,7 +682,6 @@ function handle(m){
     const sub = p.sub || '';
     const mm = sub.match(/^(.*)\((.*)\)\s*$/);
     w.innerHTML = mm ? `${esc(mm[1].trim())} · <span class="god">${esc(mm[2])}</span>` : esc(sub);
-    // pips from common day name position if derivable
     const pips = document.getElementById('d-pips');
     pips.innerHTML = '';
     const common = ['Kindleday','Sowday','Tendday','Forgeday','Highday','Wanderday','Marketday','Hearthday','Gleanday','Stillday'];
@@ -778,18 +696,10 @@ function handle(m){
     const f = document.getElementById('d-fest');
     if (p.festivals && p.festivals.length){ f.textContent = '✦ ' + p.festivals.join(' • ') + ' ✦'; f.classList.remove('hidden'); }
     else f.classList.add('hidden');
-    /* v239 (BL-021 facet 4): the banner's own stand-down countdown. The console sends the seconds
-       REMAINING, not the configured duration, so a live re-push (facet 5 — the banner follows the
-       clock) never silently restarts the count the table is watching. */
     if (typeof m.dateSecs === 'number' && m.dateSecs > 0) dbStart(m.dateSecs); else dbStop();
-    /* v239 (BL-021, the Q5 ruling): an ON banner survives a reload of THIS window on its own key.
-       torrentath_msg only restores the banner when the date was the LAST push of all — push a
-       date, then a handout, then reload, and the banner was gone. An OFF removes the key above,
-       so a banner that was taken down never comes back. */
     try { pdSet('torrentath_datebar', JSON.stringify(m)); } catch(e){}
   }
 }
-/* — the date banner's stand-down countdown (v239, BL-021) — */
 let _dbTimer = null, _dbEnd = null, _dbDur = 0;
 function dbStart(secs){
   const box = document.getElementById('db-timer'); if (!box) return;
@@ -802,8 +712,6 @@ function dbStart(secs){
     if (f) f.style.width = Math.round((rem / _dbDur) * 100) + '%';
     const c = document.getElementById('db-count');
     if (c){ const r = Math.ceil(rem); c.textContent = r >= 60 ? Math.floor(r / 60) + 'm ' + String(r % 60).padStart(2, '0') + 's' : r + 's'; }
-    /* self-hide at zero from this end too, so a console that never sends the OFF (a closed window,
-       a crashed tab) cannot strand a finished countdown on the players' screen */
     if (rem <= 0){ dbStop(); const bar = document.getElementById('datebar'); if (bar) bar.classList.add('hidden'); try { localStorage.removeItem('torrentath_datebar'); } catch(e){} }
   };
   paint();
@@ -814,13 +722,6 @@ function dbStop(){
   if (_dbTimer){ clearInterval(_dbTimer); _dbTimer = null; }
   _dbEnd = null;
 }
-/* ---- v252 (BL-026) · THE PARITY SET, on the players' side ----
-   The DM console now offers every unit on every map a flight height and a status badge. Six of the
-   eight maps' payloads therefore gained two fields — and they are the two the whiteboard already
-   travelled with since v229, `f` and `s8`, so the shape did not have to be invented, only shared.
-   These two helpers are the only place either is drawn. A renderer calls pdBadges() after it has
-   drawn a unit and it is done: ONE badge for the whole product, on both screens (the river drew a
-   circular one and the board a rounded plate — that drift ends here, on the board's). */
 function pdFlyBadge(g, cell, mx, topY, h){
   g.save();
   const txt = '↑' + h;
@@ -843,15 +744,10 @@ function pdSt8Badge(g, cell, mx, botY, s8){
   g.fillText(s8, mx, by + 0.21 * cell);
   g.restore();
 }
-/* mx = the unit's centre x · topY / botY = the top and bottom edges of the tile it occupies */
 function pdBadges(g, cell, mx, topY, botY, u){
   if (u && typeof u.f === 'number') pdFlyBadge(g, cell, mx, topY, u.f);
   if (u && u.s8) pdSt8Badge(g, cell, mx, botY, u.s8);
 }
-/* ---- v254 (BL-026 Phase 2) · ONE KEY FOR THE FOOTPRINT ----
-   Five console modules called it `size`, the tree pushed it as `s`, the board as `sz`. One name now:
-   **`sz`** (1 Medium · 2 Large · 3 Huge · 4 Gargantuan). `pdSz` reads it, with the retired keys kept
-   as a fallback for one build so a payload pushed by an older console still draws right. */
 function pdSz(u){ return Math.max(1, Math.min(4, (u && (u.sz != null ? u.sz : (u.size != null ? u.size : u.s))) || 1)); }
 function renderChasm(p){
   __lastChasm = p;
@@ -875,7 +771,6 @@ function renderChasm(p){
   g.globalAlpha = .5;
   for (let i = 0; i < 300; i++){ g.fillStyle = i % 3 ? '#c9440a' : '#f0a030'; g.fillRect((i * 89 % W), (i * 47 % H), 2, 2); }
   g.globalAlpha = 1;
-  // faint grid across the whole flow — so a water-walker on the lava is still trackable
   g.strokeStyle = 'rgba(255,225,190,.12)'; g.lineWidth = 1;
   g.beginPath();
   for (let x = 0; x <= cols; x++){ g.moveTo(x * cell + .5, 0); g.lineTo(x * cell + .5, H); }
@@ -887,7 +782,7 @@ function renderChasm(p){
       const ch = row[x] || ' ', cx = x * cell, cy = y * cell;
       if (ch === 'l'){ g.fillStyle = '#4b4636'; g.fillRect(cx, cy, cell, cell); g.strokeStyle = '#6a6350'; g.strokeRect(cx + .5, cy + .5, cell - 1, cell - 1); continue; }
       if (ch === 'x'){ g.fillStyle = '#1c0a04'; g.beginPath(); g.arc(cx + cell / 2, cy + cell / 2, cell / 2 - 1.5, 0, 7); g.fill(); continue; }
-      if (ch === 'i'){ // created ice footing over the flow
+      if (ch === 'i'){
         const mx = cx + cell / 2, my = cy + cell / 2, r = cell / 2 - 2;
         g.beginPath(); g.arc(mx, my, r, 0, 7);
         g.fillStyle = '#cfe9f4'; g.fill(); g.lineWidth = 1.5; g.strokeStyle = '#7fb6d6'; g.stroke();
@@ -901,7 +796,6 @@ function renderChasm(p){
       if (ch === 'c'){ g.fillStyle = '#3a352a'; g.font = Math.floor(cell * .6) + 'px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('▮', mx, my); }
     }
   }
-  // the active crosser's reach (blue) and legal jump landings (amber), mirrored from the DM
   (p.reach || []).forEach(c => { g.fillStyle = 'rgba(150,86,224,.30)'; g.fillRect(c.x * cell + 1, c.y * cell + 1, cell - 2, cell - 2); });
   (p.jumps || []).forEach(c => {
     const cx = c.x * cell, cy = c.y * cell, isLong = c.t !== 'stand';
@@ -916,7 +810,7 @@ function renderChasm(p){
     g.fillStyle = t.d ? '#555' : (t.c || '#e0b64a'); g.fill();
     g.lineWidth = 2; g.strokeStyle = '#111'; g.stroke();
     if (t.w){ g.strokeStyle = '#6fc0e0'; g.lineWidth = 1.5; g.beginPath(); g.arc(mx, my, cell / 2 + 1.5, 0, 7); g.stroke(); }
-    if (t.h){ g.strokeStyle = '#ff8a2a'; g.lineWidth = 2.5; g.beginPath(); g.arc(mx, my, cell / 2 + 3, 0, 7); g.stroke(); }  /* v155 (BL-011): the layer/burst caught this PC */
+    if (t.h){ g.strokeStyle = '#ff8a2a'; g.lineWidth = 2.5; g.beginPath(); g.arc(mx, my, cell / 2 + 3, 0, 7); g.stroke(); }
     g.fillStyle = '#111'; g.font = 'bold ' + Math.max(8, Math.floor(cell * .5)) + 'px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
     g.fillText((t.n || ''), mx, my);
     if (t.d){ g.strokeStyle = '#d98079'; g.lineWidth = 2; g.beginPath(); g.moveTo(mx - cell / 4, my - cell / 4); g.lineTo(mx + cell / 4, my + cell / 4); g.stroke(); }
@@ -925,7 +819,6 @@ function renderChasm(p){
 }
 let __lastChasm = null;
 window.addEventListener('resize', () => { if (__lastChasm) renderChasm(__lastChasm); });
-/* ---------- Frost Worms battle map (scene 11.2) ---------- */
 function renderFrost(p){
   __lastFrost = p;
   const n = p.n || 40;
@@ -942,34 +835,28 @@ function renderFrost(p){
   const W = n * cell, H = n * cell;
   cv.width = W; cv.height = H;
   const g = cv.getContext('2d');
-  // snow field
   g.fillStyle = '#eef3f7'; g.fillRect(0, 0, W, H);
   g.globalAlpha = .6;
   for (let i = 0; i < 360; i++){ const px = (i * 137 % W), py = (i * 89 % H); g.fillStyle = i % 4 ? '#dbe6ef' : '#c3d3e0'; g.fillRect(px, py, 2, 2); }
   g.globalAlpha = 1;
-  // faint grid
   g.strokeStyle = 'rgba(120,150,175,.24)'; g.lineWidth = 1; g.beginPath();
   for (let x = 0; x <= n; x++){ g.moveTo(x * cell + .5, 0); g.lineTo(x * cell + .5, H); }
   for (let y = 0; y <= n; y++){ g.moveTo(0, y * cell + .5); g.lineTo(W, y * cell + .5); }
   g.stroke();
-  // v253 (BL-026 UAT round 1): the party's move range, which this map never had
   (p.reach || []).forEach(c2 => {
     g.fillStyle = 'rgba(150,86,224,.26)'; g.fillRect(c2.x * cell + 1, c2.y * cell + 1, cell - 2, cell - 2);
   });
-  // rocks
   (p.rocks || []).forEach(r => {
     const cx = r[0] * cell, cy = r[1] * cell, mx = cx + cell / 2, my = cy + cell / 2, rr = cell / 2 - 2;
     g.beginPath(); g.arc(mx, my, rr, 0, 7); g.fillStyle = '#7c7466'; g.fill();
     g.lineWidth = 1.5; g.strokeStyle = '#3a352a'; g.stroke();
   });
-  // craters
   (p.holes || []).forEach(h => {
     const size = (h.size || 4) * cell, cx = h.x * cell, cy = h.y * cell, mx = cx + size / 2, my = cy + size / 2, r = size / 2 - 2;
     g.beginPath(); g.arc(mx, my, r, 0, 7); g.fillStyle = '#0e1116'; g.fill();
     g.lineWidth = 2; g.strokeStyle = '#2a3340'; g.stroke();
     g.beginPath(); g.arc(mx, my, r * 0.6, 0, 7); g.fillStyle = '#05070a'; g.fill();
   });
-  // revealed worms
   (p.worms || []).forEach(w => {
     const size = pdSz(w) * cell, cx = w.x * cell, cy = w.y * cell, mx = cx + size / 2, my = cy + size / 2, r = size / 2 - 3;
     g.beginPath(); g.arc(mx, my, r, 0, 7); g.fillStyle = '#bfe3ef'; g.fill();
@@ -978,7 +865,6 @@ function renderFrost(p){
     g.fillText(w.n || 'FW', mx, my);
     pdBadges(g, cell, mx, cy, cy + size, w);
   });
-  // player tiles
   (p.tokens || []).forEach(t => {
     const sd = pdSz(t) * cell;
     const mx = t.x * cell + sd / 2, my = t.y * cell + sd / 2;
@@ -995,7 +881,6 @@ function renderFrost(p){
 let __lastFrost = null;
 window.addEventListener('resize', () => { if (__lastFrost) renderFrost(__lastFrost); });
 
-/* ---------- The Bowl of the Nine (scene 11.5) ---------- */
 function renderBowl(p){
   __lastBowl = p;
   const nw = p.nw || p.n || 40, nh = p.nh || p.n || 40, cx = (p.cx == null ? nw/2 : p.cx), cy = (p.cy == null ? nh/2 : p.cy), R = p.R || (Math.max(nw, nh)/2);
@@ -1013,12 +898,10 @@ function renderBowl(p){
   cv.width = W; cv.height = H;
   const g = cv.getContext('2d');
   const ccx = cx * cell, ccy = cy * cell, cR = R * cell;
-  // outer slope (out of play)
   g.fillStyle = '#c4d0da'; g.fillRect(0, 0, W, H);
   g.globalAlpha = .5;
   for (let i = 0; i < 500; i++){ const px = (i * 149 % W), py = (i * 71 % H); g.fillStyle = i % 3 ? '#b3c2ce' : '#d6e0e8'; g.fillRect(px, py, 2, 2); }
   g.globalAlpha = 1;
-  // bowl interior (clipped)
   g.save(); g.beginPath(); g.arc(ccx, ccy, cR, 0, 7); g.clip();
   g.fillStyle = '#eef3f7'; g.fillRect(0, 0, W, H);
   const rg = g.createRadialGradient(ccx, ccy, cell, ccx, ccy, cR);
@@ -1034,28 +917,23 @@ function renderBowl(p){
   g.strokeStyle = 'rgba(110,140,165,.16)'; g.lineWidth = 1;
   for (let rr = R - 6; rr > 4; rr -= 6){ g.beginPath(); g.arc(ccx, ccy, rr * cell, 0, 7); g.stroke(); }
   g.restore();
-  // rim
   g.beginPath(); g.arc(ccx, ccy, cR, 0, 7); g.lineWidth = 3; g.strokeStyle = '#8ba3b5'; g.stroke();
   g.beginPath(); g.arc(ccx, ccy, cR - 2, 0, 7); g.lineWidth = 1; g.strokeStyle = 'rgba(255,255,255,.7)'; g.stroke();
-  // rocks (ice rubble)
   (p.rocks || []).forEach(r => {
     const mx = r[0] * cell + cell / 2, my = r[1] * cell + cell / 2, rr = cell / 2 - 1;
     g.beginPath(); g.moveTo(mx - rr, my + rr * .4); g.lineTo(mx - rr * .4, my - rr); g.lineTo(mx + rr * .5, my - rr * .5); g.lineTo(mx + rr, my + rr * .5); g.lineTo(mx - rr * .2, my + rr); g.closePath();
     g.fillStyle = '#c3d3e0'; g.fill(); g.lineWidth = 1.5; g.strokeStyle = '#8ba3b5'; g.stroke();
   });
-  // cube of force (shimmer)
   if (p.cube){
     const x = p.cube.x * cell, y = p.cube.y * cell, s = p.cube.size * cell;
     g.fillStyle = 'rgba(130,150,220,.08)'; g.fillRect(x, y, s, s);
     g.lineWidth = 2.5; g.strokeStyle = 'rgba(150,170,235,.7)'; g.setLineDash([2, 3]); g.strokeRect(x + 1, y + 1, s - 2, s - 2); g.setLineDash([]);
     g.lineWidth = 1; g.strokeStyle = 'rgba(200,215,255,.5)'; g.strokeRect(x + 4, y + 4, s - 8, s - 8);
   }
-  // move-range (striped) mirrored for the players
   (p.reach || []).forEach(c => {
     g.fillStyle = 'rgba(150,86,224,.26)'; g.fillRect(c.x * cell + 1, c.y * cell + 1, cell - 2, cell - 2);
     g.strokeStyle = 'rgba(150,86,224,.6)'; g.lineWidth = 1; g.setLineDash([3, 2]); g.strokeRect(c.x * cell + 1.5, c.y * cell + 1.5, cell - 3, cell - 3); g.setLineDash([]);
   });
-  // ritualists first, heart, then giants/mindwithers
   const drawEnemy = e => {
     const s = pdSz(e) * cell, x = e.x * cell, y = e.y * cell, mx = x + s / 2, my = y + s / 2, r = s / 2 - 2;
     let fill, stroke, ink;
@@ -1082,7 +960,6 @@ function renderBowl(p){
     if (!dead){ g.font = 'bold ' + Math.max(8, Math.floor(s * 0.12)) + 'px sans-serif'; g.fillStyle = '#3a0a0c'; g.fillText('↑ ' + hh.alt + ' ft', mx, my + 8); }
   }
   (p.enemies || []).filter(e => e.t !== 'rit').forEach(drawEnemy);
-  // player tiles
   (p.tokens || []).forEach(t => {
     const sd = pdSz(t) * cell;
     const mx = t.x * cell + sd / 2, my = t.y * cell + sd / 2;
@@ -1099,11 +976,6 @@ function renderBowl(p){
 let __lastBowl = null;
 window.addEventListener('resize', () => { if (__lastBowl) renderBowl(__lastBowl); });
 
-/* ---------- The Shot that Rang Across an Empire (1.2) — amphi push ---------- */
-/* v190 (BL-008): renders the DM's focus window of the amphitheater battle map. The static
-   geometry (walls, oval, dais, rings, rend, ropes, guard posts) is fixed and mirrors the
-   console's map config; the payload carries only the window and the live
-   tokens/foes/reach. */
 const AMD_CFG = {
   cols: 62, rows_n: 54,
   outer: {cx: 31, cy: 23, rx: 26.5, ry: 21.5},
@@ -1115,7 +987,7 @@ const AMD_CFG = {
   sdais: {cx: 31, cy: 29.5, rx: 6.2, ry: 4.8},
   corStairs: {x: 28, y: 25, w: 7, h: 3},
   rings: [ {cx: 15.5, cy: 10, r: 1.7}, {cx: 46.5, cy: 10, r: 1.7}, {cx: 31, cy: 30.5, r: 1.7} ],
-  rend: {x: 30, y: 43, w: 4, h: 1},   /* 4 sq E–W × 1 sq N–S on the south wall, aligned with the door */
+  rend: {x: 30, y: 43, w: 4, h: 1},
   ropes: [
     {x1: 7,  y1: 18, x2: 15, y2: 18, g: 4,  k: {x: 11, y: 19}, gside: -1},
     {x1: 47, y1: 18, x2: 55, y2: 18, g: 5,  k: {x: 51, y: 19}, gside: -1},
@@ -1242,7 +1114,6 @@ function renderAmphi(p){
   for (let y = y0; y <= y0 + nh; y++){ g.moveTo(x0 * cell, y * cell + .5); g.lineTo((x0 + nw) * cell, y * cell + .5); }
   g.stroke();
   g.restore();
-  /* window-relative dynamics */
   (p.reach || []).forEach(r => {
     g.fillStyle = 'rgba(150,86,224,.28)'; g.fillRect(r.x * cell + 1, r.y * cell + 1, cell - 2, cell - 2);
     g.strokeStyle = 'rgba(150,86,224,.6)'; g.lineWidth = 1; g.setLineDash([3, 2]); g.strokeRect(r.x * cell + 1.5, r.y * cell + 1.5, cell - 3, cell - 3); g.setLineDash([]);
@@ -1306,8 +1177,6 @@ function renderAmphi(p){
 let __lastAmphi = null;
 window.addEventListener('resize', () => { if (__lastAmphi) renderAmphi(__lastAmphi); });
 
-/* ===== v198 (BL-007): The Battle for Oospufmorn — the trunk stair (6.3) + the platform (6.4) =====
-   Geometry mirrors the console's OS_SCENES configs exactly; hidden things never reach this payload. */
 const OSD_SCENES = {
   '6.3': { kind: 'spiral', cols: 26, rows_n: 26, cx: 13, cy: 13, trunkR: 8.8, ringR: 10.4, stairR: 9.85, rail: false,
            seamA: 97, wedge: {a0: 80, a1: 96}, entry: {a: 106, r: 9.7} },
@@ -1319,10 +1188,8 @@ const osdRad = a => a * Math.PI / 180;
 function osdCellR(cm, x, y){ const dx = x + 0.5 - cm.cx, dy = y + 0.5 - cm.cy; return Math.sqrt(dx * dx + dy * dy); }
 function osdInWedge(cm, x, y){ if (!cm.wedge) return false; const a = Math.atan2(y + 0.5 - cm.cy, x + 0.5 - cm.cx) * 180 / Math.PI; return a >= cm.wedge.a0 && a <= cm.wedge.a1; }
 function osdAngPos(cm, a, r){ return { x: Math.round(cm.cx + Math.cos(osdRad(a)) * r - 0.5), y: Math.round(cm.cy + Math.sin(osdRad(a)) * r - 0.5) }; }
-/* the bore's opening at a stage (1–3) — identical geometry to the console's osBoreC/osInBore */
 function osdBoreC(cm, stage){ const r = cm.bore.r[Math.max(1, Math.min(stage, cm.bore.r.length)) - 1]; const d = cm.trunkR - r; return {x: cm.cx + Math.cos(osdRad(cm.bore.a)) * d, y: cm.cy + Math.sin(osdRad(cm.bore.a)) * d, r}; }
 function osdInBore(cm, stage, x, y){ if (!cm.bore || !stage) return false; const b = osdBoreC(cm, stage); return Math.hypot(x + 0.5 - b.x, y + 0.5 - b.y) <= b.r; }
-/* v200: the flight badge — a teal wing chip with the height above platform level */
 function osdFlyBadge(g, cell, px, topY, h){
   g.save();
   const txt = '↑' + h;
@@ -1335,7 +1202,6 @@ function osdFlyBadge(g, cell, px, topY, h){
   g.fillText(txt, px, by + cell * 0.23);
   g.restore();
 }
-/* the spiral stair raster — identical sampling to the console's osStairSet */
 function osdStairSet(cm){
   if (cm.__stair) return cm.__stair;
   const stair = new Set(), wedge = new Set();
@@ -1345,8 +1211,6 @@ function osdStairSet(cm){
     const y = Math.floor(cm.cy + Math.sin(osdRad(a)) * cm.stairR);
     const set = (a >= cm.wedge.a0 && a <= cm.wedge.a1) ? wedge : stair;
     set.add(x + ',' + y);
-    /* 4-connect the raster: a diagonal step adds the outer elbow cell so the stair never touches
-       corner-to-corner (it must read as a solid run, not a checker) */
     if (px !== null && x !== px && y !== py){
       const c1 = {x, y: py}, c2 = {x: px, y};
       const pick = (Math.abs(Math.hypot(c1.x + 0.5 - cm.cx, c1.y + 0.5 - cm.cy) - cm.stairR) <
@@ -1360,21 +1224,13 @@ function osdStairSet(cm){
   return cm.__stair;
 }
 
-/* v205 (BL-016 P3) — the Cornell Scrying Broadcast */
-/* v209 (BL-016 Piece 9/10) — the broadcast at full r001 Live-Race-Feed fidelity: runner alerts,
-   the consecutive-fast meta, the guide's pinned hint bar, the marquee ticker (hover pauses it),
-   rank flashes, the TRUE finish splash — win particles, the six wolves, the booth's finish call,
-   the top-ten standings, click anywhere to dismiss to the full final board — the synthesized
-   horn / crowd / wolf-howl finish audio, and the ⇄ booth / ⛶ fullscreen view controls. */
 const pdRace = {booth: true, dismissed: false, finishPlayed: false, last: null};
 function pdRaceToggleBooth(){ pdRace.booth = !pdRace.booth; if (pdRace.last) renderRace(pdRace.last); }
 function pdRaceToggleFS(){ if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {}); else document.exitFullscreen(); }
 function pdRaceDismiss(){ if (!pdRace.dismissed){ pdRace.dismissed = true; if (pdRace.last) renderRace(pdRace.last); } }
 
-/* — the synthesized audio (carried verbatim from the r001 LRF; every call is try-guarded) — */
 let _actx = null;
 function getACtx(){ if (!_actx) _actx = new (window.AudioContext || window.webkitAudioContext)(); return _actx; }
-/* v215 (UX sweep): a player-side mute for the synthesized finish audio — display-local, remembered */
 function pdMuted(){ try { return localStorage.getItem('torrentath_pd_mute') === '1'; } catch(e){ return false; } }
 function pdToggleMute(){ try { localStorage.setItem('torrentath_pd_mute', pdMuted() ? '0' : '1'); } catch(e){} if (pdRace.last) renderRace(pdRace.last); }
 document.addEventListener('click', () => { try { if (_actx && _actx.state === 'suspended') _actx.resume(); } catch(e){} });
@@ -1393,7 +1249,6 @@ function pdSpawnParticles(){
     c.appendChild(p);
   }
 }
-/* — the finish-call pools (the r001 LRF's, verbatim; shuffle-bag rotation) — */
 const PD_FCALLS = {finish_first:["THE RACE IS WON — {party} crosses the finish line in Cornell and THIRTY TEAMS of racers have their answer — Vash's dire wolves, the reason the quotes exist in this race's title, have brought their party home FIRST. The crowd. Is. GONE.","{party} across the line — FIRST — the wolves are howling, Cornell is howling — Corben Vash standing on the runners with that expression that isn't quite a smile but is the closest thing to one I have ever seen on that man.","AND THAT IS THE FINISH — {party} wins the Dragonspine Mountains 'Dog' Sled Race — ten thousand gold pieces, the bonus prize, and the absolute respect of every team on this mountain."],finish_not_first:["{party} crosses the finish line in Cornell — rank {rank} of thirty — the Dragonspine is behind them, Vash's wolves still running strong, and whatever this mountain asked of them they answered it. That is not nothing. That is never nothing.","{party} finishes — rank {rank} — the mountain is crossed, the race is run, and Vash's dire wolves have delivered them to Cornell in one piece. The prize goes elsewhere this year. The story doesn't.","Across the line for {party} — {rank} of thirty — Vash eases the wolves to a walk, the first time in five days, and they look back at the mountain like they're already thinking about next year."],finish_last:["{party} crosses the finish line — last across, but ACROSS — the Dragonspine Mountain took everything it had and they are still here. Vash nods once. The wolves are tired. Everyone is proud. The standings don't capture what this was.","Last across the line in Cornell — but the line is crossed — {party} and Vash's wolves completing the Dragonspine 'Dog' Sled Race and the crowd gives them the applause that isn't about position.","The final team in — {party} — and Cornell cheers for them the way Cornell cheers for the ones who made it when making it wasn't certain. Vash doesn't acknowledge the crowd. Tusk does. Tusk always does."]};
 const _pdFr = {};
 function _pdShuf(a){ const b = [...a]; for (let i = b.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; }
@@ -1407,7 +1262,6 @@ function getFCall(cat, subs = {}){
   return t;
 }
 function pdTicker(p, rows){
-  /* v214: writes the STATIC bottom ticker and returns nothing to inline — see the CSS note */
   let tc;
   if (!p.started) tc = 'The Dragonspine Mountains "Dog" Sled Race — Cornell Scrying Broadcast · Thirty teams gather at Zethel — the scryers are standing by · May the fastest wolves win';
   else {
@@ -1505,7 +1359,6 @@ function renderRace(p){
     </div>${p.finished ? `<div class="bc-refin" onclick="pdRace.dismissed = false; renderRace(pdRace.last)">🏆 back to the finish</div>` : ''}${pdTicker(p, rows)}</div>`);
 }
 
-/* — the story strip (v209 Piece 9b): the SP image push, an overlay with its own countdown — */
 let _ssTimer = null, _ssEnd = null, _ssDur = 60;
 function showStory(p){
   const strip = document.getElementById('story-strip'); if (!strip) return;
@@ -1591,7 +1444,7 @@ function renderTree(p){
   g.strokeStyle = 'rgba(255,240,220,.08)'; g.lineWidth = 1;
   [0.8, 0.6, 0.4, 0.22].forEach(f => { g.beginPath(); g.arc(CX, CY, cm.trunkR * f * cell, 0, 7); g.stroke(); });
   g.fillStyle = 'rgba(240,228,205,.85)'; g.textAlign = 'center'; g.textBaseline = 'middle';
-  g.font = 'bold ' + Math.round(cell * 0.85) + 'px serif'; g.fillText(String(p.tree || 'Oospufmorn').toUpperCase(), CX, CY - cell * 0.55);   /* v235: the platform is one structure mounted at two trees — the trunk carries the name the DM's payload gives it */
+  g.font = 'bold ' + Math.round(cell * 0.85) + 'px serif'; g.fillText(String(p.tree || 'Oospufmorn').toUpperCase(), CX, CY - cell * 0.55);
   g.font = Math.round(cell * 0.5) + 'px serif'; g.fillStyle = 'rgba(240,228,205,.55)'; g.fillText('trunk — impassable', CX, CY + cell * 0.55);
   if (cm.rail){
     g.strokeStyle = '#2c2318'; g.lineWidth = 2.5;
@@ -1617,8 +1470,6 @@ function renderTree(p){
   g.beginPath();
   for (let i = 0; i < 10; i++){ const a = -Math.PI / 2 + i * Math.PI / 5, rr = (i % 2 ? 0.22 : 0.5) * cell; const px = sx + Math.cos(a) * rr, py = sy + Math.sin(a) * rr; i ? g.lineTo(px, py) : g.moveTo(px, py); }
   g.closePath(); g.fill(); g.stroke();
-  /* the Heartbore + the circle — drawn ONLY when the DM has revealed them (the payload flags).
-     p.bore is the opened STAGE (1–3): each opening is walkable heartwood floor inside the trunk. */
   if (cm.bore && p.bore){
     const stage = Math.max(1, Math.min(p.bore, cm.bore.r.length));
     const b = osdBoreC(cm, stage);
@@ -1642,7 +1493,6 @@ function renderTree(p){
     for (let i = 0; i < 12; i++){ const a = i * Math.PI / 6; g.beginPath(); g.moveTo(px + Math.cos(a) * rr * 0.72, py + Math.sin(a) * rr * 0.72); g.lineTo(px + Math.cos(a) * rr * 0.95, py + Math.sin(a) * rr * 0.95); g.stroke(); }
   }
   g.restore();
-  /* window-relative dynamics */
   (p.reach || []).forEach(r => {
     g.fillStyle = 'rgba(150,86,224,.28)'; g.fillRect(r.x * cell + 1, r.y * cell + 1, cell - 2, cell - 2);
     g.strokeStyle = 'rgba(150,86,224,.6)'; g.lineWidth = 1; g.setLineDash([3, 2]); g.strokeRect(r.x * cell + 1.5, r.y * cell + 1.5, cell - 3, cell - 3); g.setLineDash([]);
@@ -1679,7 +1529,6 @@ function renderTree(p){
 let __lastTree = null;
 window.addEventListener('resize', () => { if (__lastTree) renderTree(__lastTree); });
 
-/* ---- The Drowned Temple — art-backed dive map (BL-006) ---- */
 let __lastDive = null;
 const __pdDiveImg = {};
 function pdDiveImage(src){
@@ -1742,7 +1591,6 @@ function renderDive(p){
   });
 }
 window.addEventListener('resize', () => { if (__lastDive) renderDive(__lastDive); });
-/* ---- The River Serpent — river-voyage battle map (BL-010) ---- */
 let __lastRiver = null; const __pdRvImg = {};
 function pdRvImage(src){
   const s = resolveImageSrc(src || ''); if (!s) return null;
@@ -1813,13 +1661,6 @@ function renderRiver(p){
 }
 window.addEventListener('resize', () => { if (__lastRiver) renderRiver(__lastRiver); });
 
-/* ---- v229 (BL-009 Piece 2) — THE WHITEBOARD BOARD ----
-   The one map whose GEOMETRY TRAVELS IN THE PAYLOAD. Every other map here mirrors by holding a
-   byte-identical copy of its config (AMD_CFG, OSD_SCENES, the rv shore table); a board is drawn by
-   the DM at the table, so there is nothing to copy — the push carries the windowed slice of the grid
-   itself (the `chasm` p.grid precedent). That makes this renderer GENERIC: it draws whatever board
-   it is handed, so the players' screen never needs another change for any board ever sketched.
-   Hidden tokens are filtered out console-side and never arrive here. */
 const WBD_T = {
   '.': {fill: '#d9cfb4'}, 'd': {fill: '#c0a878'}, 'w': {fill: '#6f9db8'},
   '#': {fill: '#57504a'}, 'c': {fill: '#b9a97e'}, 'x': {fill: '#191621'}
@@ -1883,7 +1724,6 @@ function wbdUnit(g, cell, u){
   if (u.d){ g.strokeStyle = '#d98079'; g.lineWidth = Math.max(2, cell * 0.12);
     g.beginPath(); g.moveTo(mx - r * .65, my - r * .65); g.lineTo(mx + r * .65, my + r * .65);
     g.moveTo(mx + r * .65, my - r * .65); g.lineTo(mx - r * .65, my + r * .65); g.stroke(); }
-  /* v252 (BL-026): these two badges were authored here at v229 and are the product's now */
   pdBadges(g, cell, mx, py + cell * 0.18, py + side, u);
 }
 let __lastBoard = null;
@@ -1928,7 +1768,6 @@ function renderBoard(p){
   for (let x = 0; x <= nw; x++){ g.moveTo(x * cell + .5, 0); g.lineTo(x * cell + .5, H); }
   for (let y = 0; y <= nh; y++){ g.moveTo(0, y * cell + .5); g.lineTo(W, y * cell + .5); }
   g.stroke();
-  /* the fifty-foot rules stay anchored to the BOARD, not the window, so they never crawl as it pans */
   const x0 = p.x0 || 0, y0 = p.y0 || 0;
   g.strokeStyle = 'rgba(70,60,45,.42)'; g.lineWidth = 1.4; g.beginPath();
   for (let x = 0; x <= nw; x++) if (((x + x0) % 10) === 0){ g.moveTo(x * cell + .5, 0); g.lineTo(x * cell + .5, H); }
@@ -1976,10 +1815,6 @@ function resolveImageSrc(src){
   if (/^(https?:|data:|\/)/i.test(src)) return src;
   return src.replace(/^\.\//, '');
 }
-/* v257 (BL-028): the statically-painted idle screen gets the notice the moment
-   the script runs. The static markup above is left alone so the pre-script paint
-   is unchanged; the notice is appended rather than re-rendered, which keeps ONE
-   copy of the string in this file. */
 try { var _idle0 = document.getElementById('idle'); if (_idle0 && !_idle0.querySelector('.lic')) _idle0.insertAdjacentHTML('beforeend', LICENCE_HTML + STAMP_HTML); } catch(e){}
 
 if (chan) chan.addEventListener('message', ev => handle(ev.data));
@@ -1988,15 +1823,7 @@ window.addEventListener('storage', ev => {
     try { handle(JSON.parse(ev.newValue)); } catch(e){}
   }
 });
-// replay last message if present (display opened after a push)
-// The players' screen always opens on the TORRENTATH home screen; the DM pushes whatever is needed.
-// Only the in-world date banner is restored on load (it sits under TORRENTATH); the map and other pushes are not auto-restored.
 try { const last = JSON.parse(localStorage.getItem('torrentath_msg') || 'null'); if (last && last.type === 'date') handle(last); } catch(e){}
-/* v239 (BL-021, the Q5 ruling): ...and the banner keeps its OWN key, so it survives a reload even
-   when the date was not the last push of all (a date, then a handout, then a reload used to lose
-   it). An OFF deletes the key, so a banner taken down never restores. The stored countdown is
-   dropped on restore — the console's timer is authoritative and will send the OFF, and a reopened
-   window must not show 60 s left when 3 remain. */
 try {
   const db = JSON.parse(pdGet('torrentath_datebar') || 'null');
   if (db && db.type === 'date' && !db.off) handle(Object.assign({}, db, {dateSecs: 0}));

@@ -3,7 +3,7 @@
 A Dungeon Master's console for the Torrentath campaign and the adjoining
 *"Dog" Sled Race* one-shot, with a second screen for the players.
 
-**Build v279 · 2026-08-16**
+**Build v283 · 2026-08-17**
 
 ---
 
@@ -24,8 +24,10 @@ If you only ever open one file, open the console.
   Open the file from your own disk and it runs.
 * **Two screens, ideally** — one for you, one for the table. One screen works;
   you just alt-tab.
-* **Keep the folder together.** The console reads `world_data_console.json` and
-  `images/` from beside it. Move the HTML on its own and the maps go missing.
+* **Keep the folder together.** Both screens read `images/` from beside them — move an
+  HTML file on its own and the maps go missing. The console does **not** read
+  `world_data_console.json`: it carries its own copy of the campaign inside it, and the
+  file beside it is that copy, readable and editable, for when you want to see it.
 
 ## How the two screens talk
 
@@ -53,7 +55,7 @@ does not follow you to a different computer or a private window.
 
 ## Where the version is
 
-Bottom of the console's left-hand nav, on every page: **Build v279**. The
+Bottom of the console's left-hand nav, on every page: **Build v283**. The
 players' screen carries the same line at the foot of its idle screen while it is
 idle.
 

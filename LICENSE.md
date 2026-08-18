@@ -2,7 +2,7 @@
 # Licences & Attribution
 
 The Torrentath Campaign Console and the adjoining "Dog" Sled Race one-shot.
-**Build v279 · 2026-08-16**
+**Build v283 · 2026-08-17**
 
 This file carries the attributions this product owes, the provenance of its art,
 and what you may do with it. The wording of the attribution notice below is set by

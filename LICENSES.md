@@ -1,7 +1,7 @@
 # Torrentath — Campaign Console · 5E Compatible
 # The per-image provenance record
 
-**Build v279 · 2026-08-16 · 36 images**
+**Build v283 · 2026-08-17 · 36 images**
 
 This file exists because the licence to this product's art is real and the product
 said so nowhere. It carries one row per image in `images/`, and it ships with the
@@ -12,6 +12,12 @@ are not read off the filename. Two of the 36 files still carry metadata of their
 own; the rest were re-saved at some point and lost theirs, which is precisely why a
 written record is needed. Where a file's own metadata says something, its row says
 what the metadata says.
+
+**The CLASS heading each section below is the one column here that is not measured.**
+It is assigned from a file's own metadata where the file has any, and from the picture
+otherwise — so two of these rows are evidenced by the file itself and the other
+thirty-four are the author's own reading of a picture. All thirty-four were reviewed,
+row by row and picture by picture, at v281.
 
 ## The two statements that govern all of it
 
@@ -26,7 +32,7 @@ arrangement, the hand-drawn maps and every plate this project draws itself.
 
 ---
 
-### Generated · licensed AI image generator — 17
+### Generated · licensed AI image generator — 15
 
 Produced with a commercially licensed AI image generator under a paid tier that grants commercial use. Receipts are held by the author and are produced on request; the receipt identifiers themselves are not published here.
 
@@ -34,7 +40,6 @@ Produced with a commercially licensed AI image generator under a paid tier that 
 |---|---|---|---|
 | `001.jpg` | JPEG | 1036×1036 | — |
 | `Aedlab.jpg` | JPEG | 1428×784 | — |
-| `Arret_map.jpg` | JPEG | 1092×1092 | — |
 | `BhindarulMap.png` | PNG | 1024×1024 | — |
 | `BhindarulMap_player.png` | PNG | 1024×1024 | — |
 | `Chanfirch.jpg` | JPEG | 1428×784 | — |
@@ -46,16 +51,17 @@ Produced with a commercially licensed AI image generator under a paid tier that 
 | `RV_deck_sweeps.png` | PNG | 565×227 | — |
 | `RV_deck_topdeck.png` | PNG | 565×227 | — |
 | `TC_battle_map.png` | PNG | 1024×1024 | photoshop:Credit "Made with Google AI"; IPTC DigitalSourceType trainedAlgorithmicMedia; generator generation id (held, not printed — Q3) |
-| `TwinsMap.jpg` | JPEG | 1036×1036 | — |
 | `Vum.jpg` | JPEG | 1428×784 | — |
 | `sacredTree.jpg` | JPEG | 1428×784 | — |
 
-### Composite · author's plan, generated frame — 2
+### Composite · author's drawing, generated frame — 4
 
-A photograph of the author's own graph-paper plan, set inside a generated decorative frame. Both halves are covered — the plan is the author's own work, the frame by the licence above.
+The author's own drawing — a graph-paper floor plan or a hand-drawn map — set inside a generated decorative frame, and on two of them this project's own key markers typeset over the drawing. Every half is covered: the drawing and the markers are the author's own work, the frame by the licence above.
 
 | file | format | pixels | notes |
 |---|---|---|---|
+| `Arret_map.jpg` | JPEG | 1092×1092 | — |
+| `TwinsMap.jpg` | JPEG | 1036×1036 | — |
 | `player_manor.jpg` | JPEG | 1260×840 | v265 — the bottom-left roundel replaced with a mirrored copy of this frame’s own bottom-right roundel (BL-039 visual check) |
 | `player_manor_levels.jpg` | JPEG | 1344×896 | v265 — the same roundel, in the same frame at a second size (BL-039 visual check) |
 
